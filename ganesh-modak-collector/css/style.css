@@ -145,6 +145,7 @@ html, body {
   opacity: 0;
   transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: opacity;
+  filter: brightness(1.05) saturate(1.04);
 }
 
 .divine-bg-layer.is-active {
@@ -157,8 +158,7 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.35) 100%),
-              linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 35%, transparent 65%, rgba(0, 0, 0, 0.45) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 40%, rgba(20, 6, 12, 0.22) 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -1035,8 +1035,21 @@ html, body {
   left: calc(var(--pillar-width) + 16px);
   right: calc(var(--pillar-width) + 16px);
   z-index: 6;
-  pointer-events: none;
+  pointer-events: auto;
   overflow: visible;
+}
+
+/* Full-Screen Touch & Drag Steering Surface for Mobile / Tablet */
+.touch-steering-surface {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  touch-action: none !important;
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  background: transparent;
 }
 
 /* ==========================================================================
@@ -4374,7 +4387,7 @@ html, body {
 /* Frosted Glass Touch Controls */
 .touch-controls {
   position: absolute;
-  bottom: clamp(16px, 3vh, 32px);
+  bottom: max(16px, env(safe-area-inset-bottom, 16px) + 8px);
   left: 20px;
   right: 20px;
   display: flex;
@@ -4382,6 +4395,7 @@ html, body {
   justify-content: space-between;
   pointer-events: none;
   z-index: 75;
+  touch-action: none !important;
 }
 
 .touch-controls-group-left {
@@ -4399,28 +4413,30 @@ html, body {
   width: 66px;
   height: 66px;
   border-radius: 50%;
-  background: rgba(18, 12, 22, 0.42);
+  background: rgba(22, 14, 28, 0.55);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.15);
+  border: 1.8px solid rgba(255, 215, 0, 0.65);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55), inset 0 0 10px rgba(255, 215, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: manipulation;
-  transition: transform 0.12s ease, background-color 0.15s ease, border-color 0.15s ease;
+  -webkit-touch-callout: none;
+  touch-action: none !important;
+  pointer-events: auto !important;
+  transition: transform 0.1s ease, background-color 0.12s ease, border-color 0.12s ease;
   padding: 0;
 }
 
 .touch-glass-btn:active,
 .touch-glass-btn.is-pressed {
   transform: scale(0.92);
-  background: rgba(212, 175, 55, 0.4);
-  border-color: #ffd54f;
-  box-shadow: 0 0 14px rgba(255, 215, 0, 0.7);
+  background: rgba(230, 120, 23, 0.7);
+  border-color: #ffd700;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.85);
 }
 
 .touch-triangle-arrow {
@@ -4880,17 +4896,17 @@ html, body {
     display: none; /* Hide tip scroll on compact mobile to maximize playing arena */
   }
   .touch-controls {
-    bottom: clamp(12px, 2.4vh, 22px);
-    left: 10px;
-    right: 10px;
+    bottom: max(14px, env(safe-area-inset-bottom, 14px) + 8px);
+    left: 12px;
+    right: 12px;
     z-index: 75;
   }
   .touch-glass-btn {
-    width: 54px;
-    height: 54px;
+    width: clamp(58px, 14vw, 68px);
+    height: clamp(58px, 14vw, 68px);
   }
   .touch-triangle-arrow {
-    font-size: 20px;
+    font-size: 22px;
   }
 }
 

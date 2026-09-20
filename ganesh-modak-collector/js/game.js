@@ -487,28 +487,46 @@
 
       const bindButton = (btn, setTouchState) => {
         if (!btn) return;
-        const start = (e) => {
-          e.preventDefault();
+        let isDown = false;
+
+        const handleStart = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          if (isDown) return;
+          isDown = true;
           setTouchState(true);
           btn.classList.add('is-pressed');
           try {
-            if (btn.setPointerCapture) btn.setPointerCapture(e.pointerId);
+            if (e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId);
           } catch (_) {}
         };
-        const end = (e) => {
-          e.preventDefault();
+
+        const handleEnd = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          if (!isDown) return;
+          isDown = false;
           setTouchState(false);
           btn.classList.remove('is-pressed');
           try {
-            if (btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) {
+            if (e.pointerId && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) {
               btn.releasePointerCapture(e.pointerId);
             }
           } catch (_) {}
         };
 
-        btn.addEventListener('pointerdown', start);
-        btn.addEventListener('pointerup', end);
-        btn.addEventListener('pointercancel', end);
+        // Pointer Events (Modern mobile and desktop)
+        btn.addEventListener('pointerdown', handleStart);
+        btn.addEventListener('pointerup', handleEnd);
+        btn.addEventListener('pointercancel', handleEnd);
+
+        // Touch Events fallback with passive: false for iOS Safari & Android WebViews
+        btn.addEventListener('touchstart', handleStart, { passive: false });
+        btn.addEventListener('touchend', handleEnd, { passive: false });
+        btn.addEventListener('touchcancel', handleEnd, { passive: false });
+
+        // Mouse Events fallback
+        btn.addEventListener('mousedown', handleStart);
+        btn.addEventListener('mouseup', handleEnd);
+        btn.addEventListener('mouseleave', handleEnd);
       };
 
       if (btnLeft) bindButton(btnLeft, (val) => { this.touchLeft = val; });
@@ -528,64 +546,88 @@
       }
 
       // Global safety release
-      window.addEventListener('pointerup', () => {
+      const globalRelease = () => {
         this.touchLeft = false;
         this.touchRight = false;
         this.touchAction = false;
         if (btnLeft) btnLeft.classList.remove('is-pressed');
         if (btnRight) btnRight.classList.remove('is-pressed');
         if (btnAction) btnAction.classList.remove('is-pressed');
-      });
-      window.addEventListener('pointercancel', () => {
-        this.reset();
-      });
+      };
+
+      window.addEventListener('pointerup', globalRelease);
+      window.addEventListener('touchend', globalRelease);
+      window.addEventListener('pointercancel', () => this.reset());
+      window.addEventListener('touchcancel', () => this.reset());
     }
 
     bindScreenTouch() {
-      const arena = document.getElementById('game-arena') || document.getElementById('game-viewport');
-      if (!arena) return;
+      const surface = document.getElementById('touch-steering-surface') ||
+                      document.getElementById('game-arena') ||
+                      document.getElementById('game-viewport');
+      if (!surface) return;
 
-      let isDragging = false;
+      let isInteracting = false;
 
-      const handlePointer = (e) => {
-        if (e.target.closest('.touch-controls') || e.target.closest('.hud-overlay') || e.target.closest('.modal-card')) {
+      const getCoordsFromEvent = (e) => {
+        if (e.touches && e.touches.length > 0) {
+          return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+        }
+        return { clientX: e.clientX, clientY: e.clientY };
+      };
+
+      const handleStartOrMove = (e) => {
+        if (e.target.closest('.touch-controls') || e.target.closest('.hud-overlay') || e.target.closest('.modal-card') || e.target.closest('.hud-circle-pause-btn')) {
           return;
         }
-        const rect = arena.getBoundingClientRect();
+        if (e.cancelable) e.preventDefault();
+
+        const coords = getCoordsFromEvent(e);
+        const rect = surface.getBoundingClientRect();
         if (rect.width <= 0) return;
-        const relativeX = (e.clientX - rect.left) / rect.width;
+
+        const relativeX = (coords.clientX - rect.left) / rect.width;
         this.screenPointerX = Math.max(0, Math.min(1, relativeX));
         this.screenPointerActive = true;
       };
 
-      arena.addEventListener('pointerdown', (e) => {
-        if (e.target.closest('.touch-controls') || e.target.closest('.hud-overlay') || e.target.closest('.modal-card')) return;
-        isDragging = true;
-        handlePointer(e);
+      const onStart = (e) => {
+        if (e.target.closest('.touch-controls') || e.target.closest('.hud-overlay') || e.target.closest('.modal-card') || e.target.closest('.hud-circle-pause-btn')) return;
+        isInteracting = true;
+        handleStartOrMove(e);
         try {
-          if (arena.setPointerCapture) arena.setPointerCapture(e.pointerId);
+          if (e.pointerId && surface.setPointerCapture) surface.setPointerCapture(e.pointerId);
         } catch (_) {}
-      });
+      };
 
-      arena.addEventListener('pointermove', (e) => {
-        if (isDragging) {
-          handlePointer(e);
+      const onMove = (e) => {
+        if (isInteracting) {
+          handleStartOrMove(e);
         }
-      });
+      };
 
-      const endPointer = (e) => {
-        isDragging = false;
+      const onEnd = (e) => {
+        isInteracting = false;
         this.screenPointerActive = false;
         this.screenPointerX = null;
         try {
-          if (arena.hasPointerCapture && arena.hasPointerCapture(e.pointerId)) {
-            arena.releasePointerCapture(e.pointerId);
+          if (e.pointerId && surface.hasPointerCapture && surface.hasPointerCapture(e.pointerId)) {
+            surface.releasePointerCapture(e.pointerId);
           }
         } catch (_) {}
       };
 
-      arena.addEventListener('pointerup', endPointer);
-      arena.addEventListener('pointercancel', endPointer);
+      // Pointer events
+      surface.addEventListener('pointerdown', onStart);
+      surface.addEventListener('pointermove', onMove);
+      surface.addEventListener('pointerup', onEnd);
+      surface.addEventListener('pointercancel', onEnd);
+
+      // Touch events with passive: false to prevent browser gesture aborts
+      surface.addEventListener('touchstart', onStart, { passive: false });
+      surface.addEventListener('touchmove', onMove, { passive: false });
+      surface.addEventListener('touchend', onEnd, { passive: false });
+      surface.addEventListener('touchcancel', onEnd, { passive: false });
     }
 
     getHorizontalAxis(player = null) {
@@ -593,13 +635,13 @@
       if (this.keys.left || this.touchLeft) axis -= 1;
       if (this.keys.right || this.touchRight) axis += 1;
 
-      // Screen direct touch / drag steering
+      // Screen direct touch / drag steering (moves smoothly toward finger position)
       if (axis === 0 && this.screenPointerActive && player && this.screenPointerX !== null) {
-        const arenaW = player.arena ? player.arena.clientWidth : 800;
+        const arenaW = player.arena ? player.arena.clientWidth : (player.arena?.parentElement ? player.arena.parentElement.clientWidth : 800);
         const targetX = this.screenPointerX * arenaW;
         const playerCenterX = player.x + (player.width / 2);
         const diff = targetX - playerCenterX;
-        if (Math.abs(diff) > 16) {
+        if (Math.abs(diff) > 12) {
           axis = diff > 0 ? 1 : -1;
         }
       }
@@ -660,7 +702,10 @@
       this.arenaH = this.arena.clientHeight || (this.arena.parentElement ? this.arena.parentElement.clientHeight : 600) || 600;
 
       this.minX = 0;
-      this.maxX = Math.max(200, arenaWidth - this.width);
+      this.maxX = Math.max(10, arenaWidth - this.width);
+
+      // Dynamically scale responsive player speed based on viewport width
+      this.speed = Math.max(340, Math.min(480, arenaWidth * 0.55));
 
       // Clamp x within new boundaries
       this.x = Math.max(this.minX, Math.min(this.maxX, this.x));
@@ -1408,59 +1453,92 @@
    */
   const ENVIRONMENTS = [
     {
-      id: 'temple-courtyard',
-      bgUrl: 'assets/bg_game_temple_courtyard.jpg',
-      className: 'env-temple-courtyard',
-      name: 'Temple Courtyard',
-      minScore: 0,
-      icon: '🛕',
-      particleMode: 'dust',
-      toastTitle: 'TEMPLE COURTYARD',
-      description: 'Sacred Daytime Temple Courtyard with Carved Stone Pillars'
-    },
-    {
-      id: 'modak-orchard',
-      bgUrl: 'assets/bg_game_modak_orchard.jpg',
+      id: 'blossom-garden',
+      bgUrl: 'assets/bg_blossom_garden.jpg',
       className: 'env-blossom-garden',
-      name: 'Modak Orchard',
-      minScore: 100,
+      name: 'Parijat Spring Mandir',
+      minScore: 0,
       icon: '🌸',
       particleMode: 'petals',
-      toastTitle: 'SACRED MODAK ORCHARD',
-      description: 'Sweet Blossom Orchard with Parijat & Modak Offering Trees'
+      toastTitle: 'PARIJAT SPRING MANDIR',
+      description: "Lord Ganesha's sunny blossom garden with flowering Parijat trees"
     },
     {
-      id: 'mushak-meadow',
-      bgUrl: 'assets/bg_game_mushak_meadow.jpg',
-      className: 'env-lotus-lake',
-      name: 'Mushak Meadow',
-      minScore: 240,
-      icon: '🐁',
+      id: 'temple-dawn',
+      bgUrl: 'assets/bg_temple_dawn.jpg',
+      className: 'env-temple-courtyard',
+      name: 'Morning Temple Courtyard',
+      minScore: 80,
+      icon: '🛕',
       particleMode: 'dust',
-      toastTitle: 'MUSHAK MEADOW',
-      description: 'Lord Ganesha & Sacred Mouse Companion Devotional Meadow'
+      toastTitle: 'MORNING TEMPLE COURTYARD',
+      description: 'Golden sunrise temple courtyard with holy kund and marigold rangoli'
     },
     {
       id: 'kailash-peaks',
-      bgUrl: 'assets/bg_game_kailash_peaks.jpg',
+      bgUrl: 'assets/bg_kailash_peaks.jpg',
       className: 'env-temple-courtyard',
-      name: 'Kailash Peaks',
-      minScore: 420,
+      name: 'Mount Kailash Abode',
+      minScore: 180,
       icon: '🏔️',
       particleMode: 'dust',
       toastTitle: 'MOUNT KAILASH ABODE',
-      description: 'Sacred Abode of Lord Shiva, Maa Parvati & Ganesha'
+      description: 'Sacred Himalayan abode of Lord Shiva, Maa Parvati & Ganesha'
     },
     {
-      id: 'celestial-realm',
-      bgUrl: 'assets/bg_game_celestial_realm.jpg',
+      id: 'lotus-lake',
+      bgUrl: 'assets/bg_lotus_lake.jpg',
+      className: 'env-lotus-lake',
+      name: 'Sacred Lotus Lake',
+      minScore: 300,
+      icon: '🪷',
+      particleMode: 'dust',
+      toastTitle: 'SACRED LOTUS LAKE',
+      description: 'Divine pink lotus lake where Lord Ganesh & Mushak Ji rejoice'
+    },
+    {
+      id: 'celestial-dawn',
+      bgUrl: 'assets/bg_celestial_dawn.jpg',
       className: 'env-blossom-garden',
       name: 'Celestial Ananda Loka',
-      minScore: 650,
+      minScore: 440,
       icon: '✨',
       particleMode: 'dust',
       toastTitle: 'CELESTIAL ANANDA LOKA',
-      description: 'Heavenly Golden Realm of Eternal Modak Blessings'
+      description: 'Heavenly golden morning realm of divine modak blessings'
+    },
+    {
+      id: 'golden-mandapa',
+      bgUrl: 'assets/bg_8_golden_mandapa.jpg',
+      className: 'env-temple-courtyard',
+      name: 'Golden Mandapa',
+      minScore: 580,
+      icon: '🏛️',
+      particleMode: 'dust',
+      toastTitle: 'GOLDEN TEMPLE MANDAPA',
+      description: 'Carved golden sanctum where modaks and ladoos are offered'
+    },
+    {
+      id: 'monsoon-mandir',
+      bgUrl: 'assets/bg_5_monsoon_mandir.jpg',
+      className: 'env-lotus-lake',
+      name: 'Monsoon Mandir',
+      minScore: 720,
+      icon: '🌧️',
+      particleMode: 'dust',
+      toastTitle: 'MONSOON MANDIR',
+      description: 'Peaceful rain sanctuary with fresh greenery and dancing peacocks'
+    },
+    {
+      id: 'sacred-banyan',
+      bgUrl: 'assets/bg_10_sacred_banyan.jpg',
+      className: 'env-temple-courtyard',
+      name: 'Sacred Banyan Sanctuary',
+      minScore: 880,
+      icon: '🌳',
+      particleMode: 'dust',
+      toastTitle: 'SACRED BANYAN SANCTUARY',
+      description: 'Holy Kalpavriksha banyan shade where Ganesh Ji & Mushak rest'
     }
   ];
 
@@ -3589,16 +3667,26 @@
         this.pauseBtn.addEventListener('click', this.handlePauseToggle);
       }
 
-      // Play Again button (Click & touch support)
+      // Play Again button (Click, pointer & touch support)
       if (this.btnPlayAgain) {
-        this.btnPlayAgain.addEventListener('click', this.restartGame);
-        this.btnPlayAgain.addEventListener('pointerup', this.restartGame);
+        const handlePlayAgain = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          this.restartGame();
+        };
+        this.btnPlayAgain.addEventListener('click', handlePlayAgain);
+        this.btnPlayAgain.addEventListener('pointerup', handlePlayAgain);
+        this.btnPlayAgain.addEventListener('touchend', handlePlayAgain, { passive: false });
       }
 
-      // Level Continue button (Click & touch support)
+      // Level Continue button (Click, pointer & touch support)
       if (this.btnLevelContinue) {
-        this.btnLevelContinue.addEventListener('click', this.continueToNextLevel);
-        this.btnLevelContinue.addEventListener('pointerup', this.continueToNextLevel);
+        const handleLevelContinue = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          this.continueToNextLevel();
+        };
+        this.btnLevelContinue.addEventListener('click', handleLevelContinue);
+        this.btnLevelContinue.addEventListener('pointerup', handleLevelContinue);
+        this.btnLevelContinue.addEventListener('touchend', handleLevelContinue, { passive: false });
       }
 
       // Listeners
@@ -3713,6 +3801,12 @@
         this.levelManager.advanceLevel();
       }
 
+      // Refresh arena dimensions for new level
+      if (this.arena) {
+        this.cachedArenaWidth = this.arena.clientWidth || 800;
+        this.cachedArenaHeight = this.arena.clientHeight || 600;
+      }
+
       // Synchronize difficulty with new level
       if (this.difficultyManager && this.levelManager) {
         this.difficultyManager.update(
@@ -3738,6 +3832,11 @@
 
       if (this.inputManager) {
         this.inputManager.reset();
+      }
+
+      // Pre-spawn 1 fresh modak so gameplay starts immediately without any delay or perceived freeze
+      if (this.modakManager) {
+        this.modakManager.spawn(this.cachedArenaWidth || 800);
       }
 
       // Resume game
