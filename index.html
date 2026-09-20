@@ -16,6 +16,15 @@
     <main id="game-viewport" class="game-viewport" role="region" aria-label="Ganesh Ji Modak Collector Temple Environment">
 
       <!-- ==========================================
+           LAYER 0: 10 SACRED DIVINE BACKGROUNDS (DUAL-LAYER CROSSFADE)
+           ========================================== -->
+      <div id="divine-background-wrapper" class="divine-background-wrapper" aria-hidden="true">
+        <div id="divine-bg-layer-a" class="divine-bg-layer is-active" style="background-image: url('assets/bg_1_temple_dawn.jpg');"></div>
+        <div id="divine-bg-layer-b" class="divine-bg-layer" style="background-image: url('assets/bg_2_lotus_lake.jpg');"></div>
+        <div class="divine-bg-overlay"></div>
+      </div>
+
+      <!-- ==========================================
            LAYER 1: SACRED SKY & SOLAR GLOW
            ========================================== -->
       <div class="layer sky-layer" aria-hidden="true">
@@ -841,71 +850,6 @@
           </div>
         </div>
       </div>
-
-      <!-- ==========================================
-           BOTTOM JOURNEY TIMELINE TRACK (EXACT INTERFACE ALIGNMENT)
-           ========================================== -->
-      <section id="realms-timeline-bar" class="realms-timeline-bar" aria-label="Divine Environments Journey Track">
-        <div class="timeline-cards-track">
-          <!-- 1. DAY -->
-          <div id="timeline-realm-0" class="timeline-realm-card is-active" aria-label="Day – Temple Courtyard">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_day.jpg" alt="Day – Temple Courtyard" class="timeline-thumb-img">
-            </div>
-            <span class="timeline-card-pill">Day – Temple Courtyard</span>
-          </div>
-
-          <span class="timeline-flow-arrow" aria-hidden="true">➔</span>
-
-          <!-- 2. EVENING -->
-          <div id="timeline-realm-1" class="timeline-realm-card" aria-label="Evening – Riverside">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_evening.jpg" alt="Evening – Riverside" class="timeline-thumb-img">
-            </div>
-            <span class="timeline-card-pill">Evening – Riverside</span>
-          </div>
-
-          <span class="timeline-flow-arrow" aria-hidden="true">➔</span>
-
-          <!-- 3. NIGHT -->
-          <div id="timeline-realm-2" class="timeline-realm-card" aria-label="Night – Festival Lights">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_night.jpg" alt="Night – Festival Lights" class="timeline-thumb-img">
-            </div>
-            <span class="timeline-card-pill">Night – Festival Lights</span>
-          </div>
-
-          <span class="timeline-flow-arrow" aria-hidden="true">➔</span>
-
-          <!-- 4. MONSOON -->
-          <div id="timeline-realm-3" class="timeline-realm-card" aria-label="Monsoon – Rainy Temple">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_monsoon.jpg" alt="Monsoon – Rainy Temple" class="timeline-thumb-img">
-            </div>
-            <span class="timeline-card-pill">Monsoon – Rainy Temple</span>
-          </div>
-
-          <span class="timeline-flow-arrow" aria-hidden="true">➔</span>
-
-          <!-- 5. SPRING -->
-          <div id="timeline-realm-4" class="timeline-realm-card" aria-label="Spring – Blossom Garden">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_spring.jpg" alt="Spring – Blossom Garden" class="timeline-thumb-img">
-            </div>
-            <span class="timeline-card-pill">Spring – Blossom Garden</span>
-          </div>
-        </div>
-
-        <!-- FOOTER ROW: CENTER BANNER & DEVOTIONAL SALUTATION -->
-        <div class="timeline-sub-row">
-          <div class="timeline-center-banner">
-            <span class="banner-bracket-ornament">༺</span>
-            <span class="banner-headline-text">Experience New Divine Surroundings as You Play!</span>
-            <span class="banner-bracket-ornament">༻</span>
-          </div>
-          <div class="timeline-devotional-mantra">॥ श्री गणेशाय नमः ॥</div>
-        </div>
-      </section>
 
       <!-- ENVIRONMENT STATUS BADGE (COMPATIBILITY) -->
       <footer class="environment-status-badge is-sr-only" role="status" aria-live="polite">

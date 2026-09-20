@@ -1120,9 +1120,10 @@
    */
   const ENVIRONMENTS = [
     {
-      id: 'temple-courtyard',
+      id: 'temple-dawn',
+      bgUrl: 'assets/bg_1_temple_dawn.jpg',
       className: 'env-temple-courtyard',
-      name: 'Temple Courtyard',
+      name: 'Temple Dawn',
       minScore: 0,
       icon: '🛕',
       particleMode: 'dust',
@@ -1131,39 +1132,43 @@
     },
     {
       id: 'lotus-lake',
+      bgUrl: 'assets/bg_2_lotus_lake.jpg',
       className: 'env-lotus-lake',
       name: 'Lotus Lake',
-      minScore: 121,
+      minScore: 100,
       icon: '🪷',
       particleMode: 'lotus',
       toastTitle: 'LOTUS LAKE',
-      description: 'Twilight Teal & Pink Floating Lotus Pond'
+      description: 'Sacred Twilight Lotus Lake & Floating Diyas'
     },
     {
-      id: 'forest-path',
+      id: 'kailash-peaks',
+      bgUrl: 'assets/bg_3_kailash_peaks.jpg',
       className: 'env-forest-path',
-      name: 'Forest Path',
-      minScore: 281,
-      icon: '🌿',
-      particleMode: 'leaves',
-      toastTitle: 'FOREST PATH',
-      description: 'Deep Emerald Banyan Canopy & Sacred Forest Path'
+      name: 'Kailash Peaks',
+      minScore: 220,
+      icon: '🏔️',
+      particleMode: 'starlight',
+      toastTitle: 'KAILASH DHAM',
+      description: 'Majestic Mount Kailash & Mansarovar Lake'
     },
     {
       id: 'festival-night',
+      bgUrl: 'assets/bg_4_festival_night.jpg',
       className: 'env-festival-night',
       name: 'Festival Night',
-      minScore: 481,
+      minScore: 360,
       icon: '🌙',
       particleMode: 'starlight',
-      toastTitle: 'FESTIVAL NIGHT',
-      description: 'Midnight Chandra Moon Disc & Radiant Golden Diyas'
+      toastTitle: 'FESTIVAL OF LIGHTS',
+      description: 'Midnight Ghat with Thousands of Glowing Diyas'
     },
     {
-      id: 'monsoon-temple',
+      id: 'monsoon-mandir',
+      bgUrl: 'assets/bg_5_monsoon_mandir.jpg',
       className: 'env-monsoon-temple',
-      name: 'Monsoon Temple',
-      minScore: 721,
+      name: 'Monsoon Mandir',
+      minScore: 520,
       icon: '🌧️',
       particleMode: 'rain',
       toastTitle: 'MONSOON TEMPLE',
@@ -1171,25 +1176,71 @@
     },
     {
       id: 'blossom-garden',
+      bgUrl: 'assets/bg_6_blossom_garden.jpg',
       className: 'env-blossom-garden',
       name: 'Blossom Garden',
-      minScore: 1000,
+      minScore: 700,
       icon: '🌸',
       particleMode: 'petals',
-      toastTitle: 'BLOSSOM GARDEN',
-      description: 'Dawn Rose Blossoms & Chandan Dust'
+      toastTitle: 'SACRED BLOSSOMS',
+      description: 'Sacred Spring Garden of Parijat & Rose Blossoms'
+    },
+    {
+      id: 'ganga-aarti',
+      bgUrl: 'assets/bg_7_ganga_aarti.jpg',
+      className: 'env-temple-courtyard',
+      name: 'Ganga Aarti',
+      minScore: 900,
+      icon: '🪔',
+      particleMode: 'dust',
+      toastTitle: 'MAHA GANGA AARTI',
+      description: 'Varanasi Ghat Aarti with Tiered Brass Lamps'
+    },
+    {
+      id: 'golden-mandapa',
+      bgUrl: 'assets/bg_8_golden_mandapa.jpg',
+      className: 'env-festival-night',
+      name: 'Golden Mandapa',
+      minScore: 1120,
+      icon: '⚜️',
+      particleMode: 'starlight',
+      toastTitle: 'SWARNA MANDAPA',
+      description: 'Grand Ornate Gold-Plated Temple Sanctuary'
+    },
+    {
+      id: 'celestial-dawn',
+      bgUrl: 'assets/bg_9_celestial_dawn.jpg',
+      className: 'env-lotus-lake',
+      name: 'Celestial Dawn',
+      minScore: 1360,
+      icon: '✨',
+      particleMode: 'lotus',
+      toastTitle: 'CELESTIAL REALM',
+      description: 'Heavenly Clouds, Floating Palaces & Lotuses'
+    },
+    {
+      id: 'sacred-banyan',
+      bgUrl: 'assets/bg_10_sacred_banyan.jpg',
+      className: 'env-forest-path',
+      name: 'Sacred Banyan',
+      minScore: 1620,
+      icon: '🌿',
+      particleMode: 'leaves',
+      toastTitle: 'SACRED BANYAN GROVE',
+      description: 'Ancient Banyan Shrine with Hanging Brass Lanterns'
     }
   ];
 
   const ENVIRONMENT_CONFIG = {
-    minDwellSeconds: 20 // Minimum 20s dwell time per environment to ensure smooth pacing
+    cycleIntervalSeconds: 25, // Automatically advances to next divine background every 25 seconds
+    minDwellSeconds: 20       // Minimum dwell time before score-based or timed advance
   };
 
   /**
    * Environment Manager (Steps 8-10)
-   * Controls progression across the 6 sacred surroundings:
-   *  1. Tracks current score and dwell time (min 20s)
-   *  2. Smoothly crossfades between environments by applying `.env-*` classes to `.game-viewport`
+   * Controls progression across the 10 sacred surroundings:
+   *  1. Cycles automatically through 10 divine backgrounds every 25 seconds and loops indefinitely
+   *  2. Hardware-accelerated dual-layer crossfade (divine-bg-layer-a & divine-bg-layer-b)
    *  3. Shows centered 1.8s banner toast: "✨ NEW DIVINE SURROUNDING ✨ [NAME]"
    *  4. Updates HUD realm badge `#hud-env-badge` (icon & name)
    *  5. Commands `ParticleSystem.setMode()` with custom physics/palettes
@@ -1201,6 +1252,13 @@
       this.particleSystem = particleSystem;
       this.currentIndex = 0;
       this.dwellTimer = 0; // seconds spent in current environment
+      this.cycleInterval = ENVIRONMENT_CONFIG.cycleIntervalSeconds || 25;
+
+      this.layerA = document.getElementById('divine-bg-layer-a');
+      this.layerB = document.getElementById('divine-bg-layer-b');
+      this.activeLayer = 'a'; // currently visible layer
+      this.initialized = false;
+
       this.bannerEl = document.getElementById('hud-env-banner');
       this.bannerTitleEl = document.getElementById('hud-env-banner-title');
       this.bannerTimeout = null;
@@ -1220,9 +1278,17 @@
     update(dt, currentScore) {
       this.dwellTimer += dt;
 
-      // Check if eligible for next environment
-      const nextIdx = this.currentIndex + 1;
-      if (nextIdx < ENVIRONMENTS.length) {
+      // 1. Timed automatic background cycling: switch frequently after every 25s
+      // and loops continuously back to 0 when all 10 backgrounds finish!
+      if (this.dwellTimer >= this.cycleInterval) {
+        const nextIdx = (this.currentIndex + 1) % ENVIRONMENTS.length;
+        this.applyEnvironment(nextIdx, true);
+        return;
+      }
+
+      // 2. Score threshold advancement (if score milestone reached ahead of timer)
+      const nextIdx = (this.currentIndex + 1) % ENVIRONMENTS.length;
+      if (nextIdx !== 0 && this.currentIndex < ENVIRONMENTS.length - 1) {
         const nextEnv = ENVIRONMENTS[nextIdx];
         if (currentScore >= nextEnv.minScore && this.dwellTimer >= ENVIRONMENT_CONFIG.minDwellSeconds) {
           this.applyEnvironment(nextIdx, true);
@@ -1236,18 +1302,48 @@
       this.dwellTimer = 0;
       const env = ENVIRONMENTS[index];
 
-      // 1. Update viewport CSS classes (removing previous env classes)
+      // 1. Smooth Hardware-Accelerated Dual-Layer Crossfade
+      if (!this.initialized) {
+        this.initialized = true;
+        if (this.layerA) {
+          this.layerA.style.backgroundImage = `url('${env.bgUrl}')`;
+          this.layerA.classList.add('is-active');
+        }
+        if (this.layerB) {
+          this.layerB.classList.remove('is-active');
+        }
+        this.activeLayer = 'a';
+      } else {
+        if (this.layerA && this.layerB) {
+          if (this.activeLayer === 'a') {
+            this.layerB.style.backgroundImage = `url('${env.bgUrl}')`;
+            this.layerB.classList.add('is-active');
+            this.layerA.classList.remove('is-active');
+            this.activeLayer = 'b';
+          } else {
+            this.layerA.style.backgroundImage = `url('${env.bgUrl}')`;
+            this.layerA.classList.add('is-active');
+            this.layerB.classList.remove('is-active');
+            this.activeLayer = 'a';
+          }
+        } else if (this.layerA) {
+          this.layerA.style.backgroundImage = `url('${env.bgUrl}')`;
+          this.layerA.classList.add('is-active');
+        }
+      }
+
+      // 2. Update viewport CSS classes (for ambient lighting & theme styles)
       if (this.viewport) {
         ENVIRONMENTS.forEach(e => this.viewport.classList.remove(e.className));
         this.viewport.classList.add(env.className);
       }
 
-      // 2. Command Particle System
+      // 3. Command Particle System
       if (this.particleSystem && typeof this.particleSystem.setMode === 'function') {
         this.particleSystem.setMode(env.particleMode);
       }
 
-      // 3. Update HUD Realm Badge
+      // 4. Update HUD Realm Badge
       if (this.iconEl) this.iconEl.textContent = env.icon;
       if (this.nameEl) this.nameEl.textContent = env.name;
       if (this.badgeEl) {
@@ -1260,12 +1356,12 @@
         }, 1200);
       }
 
-      // 4. Trigger centered transition toast banner
+      // 5. Trigger centered transition toast banner
       if (showToast) {
         this.showTransitionBanner(env.toastTitle);
       }
 
-      // 5. Update Bottom Journey Timeline Cards Highlight (User Interface Alignment)
+      // 6. Update Timeline Cards Highlight if present
       this.updateTimelineCards(index);
     }
 
@@ -3620,8 +3716,6 @@
   function launchGame() {
     const game = new GaneshGame();
     game.init();
-    window.__GANESH_GAME__ = game;
-    window.__ganeshGame = game;
     window.__GAME_CLASSES__ = {
       ScoreManager,
       PowerManager,
@@ -3650,6 +3744,10 @@
       FLOWER_CONFIG,
       MATKA_CONFIG
     };
+    window.__GANESH_GAME__ = game;
+    window.__ganeshGame = game;
+    window.game = game;
+    window.Game = window.__GAME_CLASSES__;
   }
 
   if (document.readyState === 'loading') {

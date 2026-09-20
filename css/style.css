@@ -120,20 +120,54 @@ html, body {
 }
 
 /* ==========================================================================
+   LAYER 0: 10 SACRED DIVINE BACKGROUNDS (DUAL-LAYER CROSSFADE)
+   ========================================================================== */
+.divine-background-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.divine-bg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+.divine-bg-layer.is-active {
+  opacity: 1;
+}
+
+.divine-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.35) 100%),
+              linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, transparent 35%, transparent 65%, rgba(0, 0, 0, 0.45) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
    4. SKY & CELESTIAL GLOW (LAYER 1)
    ========================================================================== */
 .sky-layer {
-  background: linear-gradient(
-    180deg,
-    #1b0716 0%,
-    #2c0c20 22%,
-    #4a1529 42%,
-    #7a2234 60%,
-    #b33d2c 78%,
-    #df6b2a 90%,
-    #f7a440 97%,
-    #fbd078 100%
-  );
+  background: transparent !important;
   overflow: hidden;
   z-index: 1;
 }
@@ -301,6 +335,7 @@ html, body {
 .clouds-layer {
   z-index: 2;
   overflow: hidden;
+  opacity: 0.22 !important;
 }
 
 .cloud {
@@ -368,6 +403,7 @@ html, body {
   display: flex;
   align-items: flex-end;
   height: 100%;
+  opacity: 0.16 !important;
 }
 
 .distant-skyline-svg {
@@ -4376,7 +4412,7 @@ html, body {
 /* Frosted Glass Touch Controls */
 .touch-controls {
   position: absolute;
-  bottom: 110px;
+  bottom: clamp(16px, 3.5vh, 32px);
   left: 20px;
   right: 20px;
   display: flex;
@@ -4476,17 +4512,15 @@ html, body {
   100% { transform: scale(1.04); opacity: 0.95; }
 }
 
-/* Bottom Journey Timeline Track */
+/* Bottom Journey Timeline Track (Hidden in favor of full immersive background cycling) */
 .realms-timeline-bar {
+  display: none !important;
   position: absolute;
   bottom: 8px;
   left: 14px;
   right: 14px;
   z-index: 70;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .timeline-cards-track {
@@ -4667,7 +4701,7 @@ html, body {
     display: none; /* Hide tip scroll on compact mobile to maximize playing arena */
   }
   .touch-controls {
-    bottom: 95px;
+    bottom: clamp(14px, 2.5vh, 24px);
     left: 10px;
     right: 10px;
   }
