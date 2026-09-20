@@ -516,6 +516,19 @@
           }
         });
       }
+
+      // Prevent touch controls from sticking if released outside button
+      window.addEventListener('pointerup', () => {
+        this.touchLeft = false;
+        this.touchRight = false;
+        this.touchAction = false;
+        if (btnLeft) btnLeft.classList.remove('is-pressed');
+        if (btnRight) btnRight.classList.remove('is-pressed');
+        if (btnAction) btnAction.classList.remove('is-pressed');
+      });
+      window.addEventListener('pointercancel', () => {
+        this.reset();
+      });
     }
 
     getHorizontalAxis() {
@@ -570,13 +583,13 @@
 
     recalculateBounds() {
       if (!this.arena || !this.element) return;
-      const arenaWidth = this.arena.clientWidth;
+      const arenaWidth = this.arena.clientWidth || (this.arena.parentElement ? this.arena.parentElement.clientWidth : 800) || 800;
       this.width = this.element.offsetWidth || 120;
       this.height = this.element.offsetHeight || 160;
-      this.arenaH = this.arena.clientHeight || 600;
+      this.arenaH = this.arena.clientHeight || (this.arena.parentElement ? this.arena.parentElement.clientHeight : 600) || 600;
 
       this.minX = 0;
-      this.maxX = Math.max(0, arenaWidth - this.width);
+      this.maxX = Math.max(200, arenaWidth - this.width);
 
       // Clamp x within new boundaries
       this.x = Math.max(this.minX, Math.min(this.maxX, this.x));
@@ -625,6 +638,10 @@
         // Smooth deceleration on key/button release without abrupt cutoff or jitter
         this.vx += (0 - this.vx) * Math.min(1, dt * 22);
         if (Math.abs(this.vx) < 3) this.vx = 0;
+      }
+
+      if (this.maxX <= this.minX && this.arena && this.arena.clientWidth > 0) {
+        this.recalculateBounds();
       }
 
       this.x += this.vx * dt;
@@ -730,6 +747,189 @@
 
     reset() {
       this.resetPosition();
+    }
+  }
+
+  /**
+   * Mushak Manager - Lord Ganesha's Sacred Mouse Companion & Helper
+   * Runs alongside Ganesh Ji, follows his movement, and periodically
+   * dashes across the arena to catch falling modaks/ladoos before they hit the ground!
+   */
+  class MushakManager {
+    constructor(element, player, scoreManager, modakManager, ladooManager) {
+      this.element = element;
+      this.player = player;
+      this.scoreManager = scoreManager;
+      this.modakManager = modakManager;
+      this.ladooManager = ladooManager;
+
+      this.x = 0;
+      this.facing = 1; // 1 = right, -1 = left
+      this.state = 'FOLLOWING'; // 'FOLLOWING', 'DASHING', 'RETURNING'
+      this.helperTimer = 6; // First helper catch after 6 seconds
+      this.helperInterval = 15; // Then every 15 seconds
+      this.targetSweet = null;
+      this.speechEl = document.getElementById('mushak-speech');
+      this.speechTimeout = null;
+
+      this.reset();
+    }
+
+    reset() {
+      this.state = 'FOLLOWING';
+      this.targetSweet = null;
+      this.helperTimer = 6;
+      if (this.player) {
+        this.x = this.player.x + 52;
+        this.facing = this.player.facing || 1;
+      }
+      if (this.speechEl) {
+        this.speechEl.classList.add('is-hidden');
+      }
+      if (this.element) {
+        this.element.classList.remove('is-scampering', 'is-dashing');
+      }
+      this.render();
+    }
+
+    update(dt, arenaW, arenaH) {
+      if (!this.element || !this.player) return;
+
+      if (this.state === 'FOLLOWING') {
+        this.helperTimer -= dt;
+
+        // Follow Ganesh Ji smoothly at his side
+        const targetX = this.player.x + (this.player.facing > 0 ? 52 : -52);
+        const dx = targetX - this.x;
+        const speed = Math.abs(dx) * 8.0;
+        this.x += (dx >= 0 ? 1 : -1) * Math.min(Math.abs(dx), Math.max(speed, 60) * dt);
+        this.facing = this.player.facing || 1;
+
+        const isMoving = Math.abs(dx) > 3 || (this.player.isMoving);
+        this.element.classList.toggle('is-scampering', isMoving);
+
+        // Check if ready for helper seva
+        if (this.helperTimer <= 0) {
+          this.findTargetSweet(arenaW, arenaH);
+        }
+      } else if (this.state === 'DASHING') {
+        if (!this.targetSweet || !this.targetSweet.active) {
+          this.state = 'RETURNING';
+          return;
+        }
+
+        const targetX = this.targetSweet.x;
+        const dx = targetX - this.x;
+        this.facing = dx >= 0 ? 1 : -1;
+        const dashSpeed = 560; // fast dash to intercept
+        const moveDist = dashSpeed * dt;
+
+        if (Math.abs(dx) <= moveDist || Math.abs(dx) < 32) {
+          this.x = targetX;
+          this.catchSweet();
+        } else {
+          this.x += (dx >= 0 ? 1 : -1) * moveDist;
+        }
+
+        this.element.classList.add('is-dashing');
+      } else if (this.state === 'RETURNING') {
+        const targetX = this.player.x + (this.player.facing > 0 ? 52 : -52);
+        const dx = targetX - this.x;
+        this.facing = dx >= 0 ? 1 : -1;
+        const returnSpeed = 440;
+        const moveDist = returnSpeed * dt;
+
+        if (Math.abs(dx) <= moveDist || Math.abs(dx) < 18) {
+          this.x = targetX;
+          this.state = 'FOLLOWING';
+          this.helperTimer = this.helperInterval;
+          this.element.classList.remove('is-dashing');
+        } else {
+          this.x += (dx >= 0 ? 1 : -1) * moveDist;
+        }
+      }
+
+      this.render();
+    }
+
+    findTargetSweet(arenaW, arenaH) {
+      let lowestSweet = null;
+      let highestY = 0;
+
+      // Scan active modaks
+      if (this.modakManager && this.modakManager.modaks) {
+        for (const m of this.modakManager.modaks) {
+          if (m.active && m.y > highestY && m.y > 160 && m.y < arenaH - 60) {
+            highestY = m.y;
+            lowestSweet = m;
+          }
+        }
+      }
+
+      // Scan active ladoos
+      if (this.ladooManager && this.ladooManager.ladoos) {
+        for (const l of this.ladooManager.ladoos) {
+          if (l.active && l.y > highestY && l.y > 160 && l.y < arenaH - 60) {
+            highestY = l.y;
+            lowestSweet = l;
+          }
+        }
+      }
+
+      if (lowestSweet) {
+        this.targetSweet = lowestSweet;
+        this.state = 'DASHING';
+        this.showSpeech('🐁 Mushak Seva!');
+      } else {
+        // Try again shortly if no falling sweets on screen yet
+        this.helperTimer = 3.0;
+      }
+    }
+
+    catchSweet() {
+      if (!this.targetSweet || !this.targetSweet.active) {
+        this.state = 'RETURNING';
+        return;
+      }
+
+      const sweet = this.targetSweet;
+      sweet.active = false;
+      if (sweet.element) {
+        sweet.element.classList.add('is-collected');
+        setTimeout(() => {
+          if (sweet && sweet.element) sweet.element.remove();
+        }, 300);
+      }
+
+      const isLadoo = sweet.type === 'ladoo';
+      if (this.scoreManager) {
+        this.scoreManager.score += 15;
+        if (isLadoo) {
+          this.scoreManager.ladoosCollected += 1;
+        } else {
+          this.scoreManager.modaksCollected += 1;
+        }
+        this.scoreManager.render();
+      }
+
+      this.showSpeech('✨ +15 Seva! ✨');
+      this.targetSweet = null;
+      this.state = 'RETURNING';
+    }
+
+    showSpeech(text) {
+      if (!this.speechEl) return;
+      this.speechEl.textContent = text;
+      this.speechEl.classList.remove('is-hidden');
+      if (this.speechTimeout) clearTimeout(this.speechTimeout);
+      this.speechTimeout = setTimeout(() => {
+        if (this.speechEl) this.speechEl.classList.add('is-hidden');
+      }, 1600);
+    }
+
+    render() {
+      if (!this.element) return;
+      this.element.style.transform = `translate3d(${this.x.toFixed(1)}px, 0, 0) scaleX(${this.facing})`;
     }
   }
 
@@ -1120,114 +1320,59 @@
    */
   const ENVIRONMENTS = [
     {
-      id: 'temple-dawn',
-      bgUrl: 'assets/bg_1_temple_dawn.jpg',
+      id: 'day-temple',
+      bgUrl: 'assets/bg_day_temple.jpg',
       className: 'env-temple-courtyard',
-      name: 'Temple Dawn',
+      name: 'Day – Temple Courtyard',
       minScore: 0,
       icon: '🛕',
       particleMode: 'dust',
-      toastTitle: 'TEMPLE COURTYARD',
-      description: 'Morning Saffron, Gold & Terracotta Temple Courtyard'
+      toastTitle: 'DAY – TEMPLE COURTYARD',
+      description: 'Sacred Daytime Temple Courtyard with Carved Stone Pillars'
     },
     {
-      id: 'lotus-lake',
-      bgUrl: 'assets/bg_2_lotus_lake.jpg',
+      id: 'evening-riverside',
+      bgUrl: 'assets/bg_evening_riverside.jpg',
       className: 'env-lotus-lake',
-      name: 'Lotus Lake',
+      name: 'Evening – Riverside',
       minScore: 100,
-      icon: '🪷',
-      particleMode: 'lotus',
-      toastTitle: 'LOTUS LAKE',
-      description: 'Sacred Twilight Lotus Lake & Floating Diyas'
+      icon: '🌅',
+      particleMode: 'dust',
+      toastTitle: 'EVENING – RIVERSIDE',
+      description: 'Sacred Evening River Ghat & Sunset Glow'
     },
     {
-      id: 'kailash-peaks',
-      bgUrl: 'assets/bg_3_kailash_peaks.jpg',
-      className: 'env-forest-path',
-      name: 'Kailash Peaks',
-      minScore: 220,
-      icon: '🏔️',
-      particleMode: 'starlight',
-      toastTitle: 'KAILASH DHAM',
-      description: 'Majestic Mount Kailash & Mansarovar Lake'
-    },
-    {
-      id: 'festival-night',
-      bgUrl: 'assets/bg_4_festival_night.jpg',
+      id: 'night-festival',
+      bgUrl: 'assets/bg_night_festival.jpg',
       className: 'env-festival-night',
-      name: 'Festival Night',
-      minScore: 360,
+      name: 'Night – Festival Lights',
+      minScore: 240,
       icon: '🌙',
       particleMode: 'starlight',
-      toastTitle: 'FESTIVAL OF LIGHTS',
-      description: 'Midnight Ghat with Thousands of Glowing Diyas'
+      toastTitle: 'NIGHT – FESTIVAL LIGHTS',
+      description: 'Midnight Ghat with Glowing Diyas & Festival Illumination'
     },
     {
-      id: 'monsoon-mandir',
-      bgUrl: 'assets/bg_5_monsoon_mandir.jpg',
+      id: 'monsoon-temple',
+      bgUrl: 'assets/bg_monsoon_temple.jpg',
       className: 'env-monsoon-temple',
-      name: 'Monsoon Mandir',
-      minScore: 520,
+      name: 'Monsoon – Rainy Temple',
+      minScore: 420,
       icon: '🌧️',
       particleMode: 'rain',
-      toastTitle: 'MONSOON TEMPLE',
-      description: 'Gentle Cooling Rain & Reflective Courtyard Floor'
+      toastTitle: 'MONSOON – RAINY TEMPLE',
+      description: 'Gentle Cooling Rain & Sacred Temple Sanctuary'
     },
     {
       id: 'blossom-garden',
-      bgUrl: 'assets/bg_6_blossom_garden.jpg',
+      bgUrl: 'assets/bg_blossom_garden.jpg',
       className: 'env-blossom-garden',
-      name: 'Blossom Garden',
-      minScore: 700,
+      name: 'Spring – Blossom Garden',
+      minScore: 650,
       icon: '🌸',
       particleMode: 'petals',
-      toastTitle: 'SACRED BLOSSOMS',
+      toastTitle: 'SPRING – BLOSSOM GARDEN',
       description: 'Sacred Spring Garden of Parijat & Rose Blossoms'
-    },
-    {
-      id: 'ganga-aarti',
-      bgUrl: 'assets/bg_7_ganga_aarti.jpg',
-      className: 'env-temple-courtyard',
-      name: 'Ganga Aarti',
-      minScore: 900,
-      icon: '🪔',
-      particleMode: 'dust',
-      toastTitle: 'MAHA GANGA AARTI',
-      description: 'Varanasi Ghat Aarti with Tiered Brass Lamps'
-    },
-    {
-      id: 'golden-mandapa',
-      bgUrl: 'assets/bg_8_golden_mandapa.jpg',
-      className: 'env-festival-night',
-      name: 'Golden Mandapa',
-      minScore: 1120,
-      icon: '⚜️',
-      particleMode: 'starlight',
-      toastTitle: 'SWARNA MANDAPA',
-      description: 'Grand Ornate Gold-Plated Temple Sanctuary'
-    },
-    {
-      id: 'celestial-dawn',
-      bgUrl: 'assets/bg_9_celestial_dawn.jpg',
-      className: 'env-lotus-lake',
-      name: 'Celestial Dawn',
-      minScore: 1360,
-      icon: '✨',
-      particleMode: 'lotus',
-      toastTitle: 'CELESTIAL REALM',
-      description: 'Heavenly Clouds, Floating Palaces & Lotuses'
-    },
-    {
-      id: 'sacred-banyan',
-      bgUrl: 'assets/bg_10_sacred_banyan.jpg',
-      className: 'env-forest-path',
-      name: 'Sacred Banyan',
-      minScore: 1620,
-      icon: '🌿',
-      particleMode: 'leaves',
-      toastTitle: 'SACRED BANYAN GROVE',
-      description: 'Ancient Banyan Shrine with Hanging Brass Lanterns'
     }
   ];
 
@@ -1381,8 +1526,15 @@
       const timelineCards = document.querySelectorAll('.timeline-realm-card');
       if (!timelineCards || timelineCards.length === 0) return;
       timelineCards.forEach((card, idx) => {
+        const targetIdx = card.hasAttribute('data-env-index') ? parseInt(card.getAttribute('data-env-index'), 10) : idx;
         card.addEventListener('click', () => {
-          this.applyEnvironment(idx, true);
+          this.applyEnvironment(targetIdx, true);
+        });
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.applyEnvironment(targetIdx, true);
+          }
         });
       });
     }
@@ -3121,6 +3273,7 @@
       this.ladooManager = null;
       this.flowerManager = null;
       this.matkaManager = null;
+      this.mushakManager = null;
       this.viewport = null;
       this.arena = null;
       this.modaksContainer = null;
@@ -3271,6 +3424,18 @@
         this.difficultyManager
       );
 
+      // Mushak Ji - Lord Ganesha's Sacred Helper Mouse Companion
+      const mushakEl = document.getElementById('mushak-companion');
+      if (mushakEl) {
+        this.mushakManager = new MushakManager(
+          mushakEl,
+          this.player,
+          this.scoreManager,
+          this.modakManager,
+          this.ladooManager
+        );
+      }
+
       // Dedicated Sacred Environment Manager (Steps 8-10)
       this.environmentManager = new EnvironmentManager(this.viewport, this.particleSystem);
 
@@ -3401,9 +3566,20 @@
         this.timerManager.start();
       }
 
+      if (this.mushakManager) {
+        this.mushakManager.reset();
+      }
+
+      if (this.player) {
+        this.player.recalculateBounds();
+      }
+
       // Resume game
       this.state = GameState.RUNNING;
       this.lastTime = performance.now();
+      if (!this.gameLoopId) {
+        this.gameLoopId = requestAnimationFrame(this.gameLoop);
+      }
     }
 
     handleFinalComplete() {
@@ -3575,16 +3751,26 @@
       if (this.flowerManager) this.flowerManager.reset();
       if (this.matkaManager) this.matkaManager.reset();
       if (this.environmentManager) this.environmentManager.reset();
+      if (this.mushakManager) this.mushakManager.reset();
       if (this.domEffectPool) this.domEffectPool.reset();
-      if (this.player) this.player.resetPosition();
+      if (this.player) {
+        this.player.recalculateBounds();
+        this.player.resetPosition();
+      }
       if (this.inputManager) this.inputManager.reset();
 
       // Resume game
       this.state = GameState.RUNNING;
       this.lastTime = performance.now();
+      if (!this.gameLoopId) {
+        this.gameLoopId = requestAnimationFrame(this.gameLoop);
+      }
     }
 
     gameLoop(timestamp) {
+      // Schedule next frame immediately so loop never terminates
+      this.gameLoopId = requestAnimationFrame(this.gameLoop);
+
       if (this.state === GameState.RUNNING || this.state === GameState.READY) {
         // Delta time clamped to 0.05s (20 FPS floor) to prevent physics tunneling
         const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
@@ -3610,7 +3796,7 @@
           this.environmentManager.update(dt, this.scoreManager.getScore());
         }
 
-        if (this.state === GameState.GAME_OVER) return;
+        if (this.state === GameState.GAME_OVER || this.state === GameState.LEVEL_TRANSITION) return;
 
         if (this.player && this.inputManager) {
           const axisX = this.inputManager.getHorizontalAxis();
@@ -3623,6 +3809,11 @@
         const hitbox = this.player ? this.player.getHitbox() : null;
         const arenaW = this.cachedArenaWidth || (this.arena ? this.arena.clientWidth : 800);
         const arenaH = this.cachedArenaHeight || (this.arena ? this.arena.clientHeight : 600);
+
+        // Mushak Manager update (Sacred mouse companion follows Ganesh Ji & helps collect sweets)
+        if (this.mushakManager) {
+          this.mushakManager.update(dt, arenaW, arenaH);
+        }
 
         // Step 3: Divine Flower attraction physics
         if (this.flowerManager) {
@@ -3651,8 +3842,6 @@
       } else {
         this.lastTime = timestamp;
       }
-
-      this.gameLoopId = requestAnimationFrame(this.gameLoop);
     }
 
     handleResize() {
@@ -3721,6 +3910,7 @@
       PowerManager,
       LivesManager,
       DifficultyManager,
+      MushakManager,
       ModakManager,
       LadooManager,
       FlowerManager,

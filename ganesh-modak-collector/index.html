@@ -19,8 +19,8 @@
            LAYER 0: 10 SACRED DIVINE BACKGROUNDS (DUAL-LAYER CROSSFADE)
            ========================================== -->
       <div id="divine-background-wrapper" class="divine-background-wrapper" aria-hidden="true">
-        <div id="divine-bg-layer-a" class="divine-bg-layer is-active" style="background-image: url('assets/bg_1_temple_dawn.jpg');"></div>
-        <div id="divine-bg-layer-b" class="divine-bg-layer" style="background-image: url('assets/bg_2_lotus_lake.jpg');"></div>
+        <div id="divine-bg-layer-a" class="divine-bg-layer is-active" style="background-image: url('assets/bg_day_temple.jpg');"></div>
+        <div id="divine-bg-layer-b" class="divine-bg-layer" style="background-image: url('assets/bg_evening_riverside.jpg');"></div>
         <div class="divine-bg-overlay"></div>
       </div>
 
@@ -597,6 +597,24 @@
             draggable="false"
           >
         </div>
+
+        <!-- ==========================================
+             MUSHAK JI (LORD GANESH'S DEVOTED HELPER COMPANION)
+             ========================================== -->
+        <div id="mushak-companion" class="mushak-companion" role="img" aria-label="Mushak Ji - Divine Helper Companion">
+          <div class="mushak-aura" aria-hidden="true"></div>
+          <div class="mushak-sprite">
+            <span class="mushak-tail"></span>
+            <span class="mushak-body"></span>
+            <span class="mushak-ear ear-left"></span>
+            <span class="mushak-ear ear-right"></span>
+            <span class="mushak-snout"></span>
+            <span class="mushak-eye"></span>
+            <span class="mushak-dhoti"></span>
+            <span class="mushak-sweet">🥟</span>
+          </div>
+          <div id="mushak-speech" class="mushak-speech is-hidden">🐁 Mushak Seva!</div>
+        </div>
       </section>
 
       <!-- ==========================================
@@ -850,6 +868,77 @@
           </div>
         </div>
       </div>
+
+      <!-- ==========================================
+           BOTTOM JOURNEY TIMELINE TRACK (5 SACRED SURROUNDINGS)
+           MATCHING REFERENCE MOCK-UP
+           ========================================== -->
+      <nav id="realms-timeline-bar" class="realms-timeline-bar" aria-label="Sacred Environments Journey">
+        <div class="timeline-cards-track">
+          <!-- Realm 1: Day - Temple Courtyard -->
+          <div class="timeline-realm-card is-active" data-env-index="0" role="button" tabindex="0" aria-label="Switch to Day - Temple Courtyard">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_day.jpg" alt="Day Temple Courtyard" class="timeline-thumb-img" draggable="false">
+              <div class="timeline-thumb-overlay"></div>
+            </div>
+            <div class="timeline-card-pill">Day – Temple Courtyard</div>
+          </div>
+
+          <span class="timeline-track-arrow" aria-hidden="true">➔</span>
+
+          <!-- Realm 2: Evening - Riverside -->
+          <div class="timeline-realm-card" data-env-index="1" role="button" tabindex="0" aria-label="Switch to Evening - Riverside">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_evening.jpg" alt="Evening Riverside" class="timeline-thumb-img" draggable="false">
+              <div class="timeline-thumb-overlay"></div>
+            </div>
+            <div class="timeline-card-pill">Evening – Riverside</div>
+          </div>
+
+          <span class="timeline-track-arrow" aria-hidden="true">➔</span>
+
+          <!-- Realm 3: Night - Festival Lights -->
+          <div class="timeline-realm-card" data-env-index="2" role="button" tabindex="0" aria-label="Switch to Night - Festival Lights">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_night.jpg" alt="Night Festival Lights" class="timeline-thumb-img" draggable="false">
+              <div class="timeline-thumb-overlay"></div>
+            </div>
+            <div class="timeline-card-pill">Night – Festival Lights</div>
+          </div>
+
+          <span class="timeline-track-arrow" aria-hidden="true">➔</span>
+
+          <!-- Realm 4: Monsoon - Rainy Temple -->
+          <div class="timeline-realm-card" data-env-index="3" role="button" tabindex="0" aria-label="Switch to Monsoon - Rainy Temple">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_monsoon.jpg" alt="Monsoon Rainy Temple" class="timeline-thumb-img" draggable="false">
+              <div class="timeline-thumb-overlay"></div>
+            </div>
+            <div class="timeline-card-pill">Monsoon – Rainy Temple</div>
+          </div>
+
+          <span class="timeline-track-arrow" aria-hidden="true">➔</span>
+
+          <!-- Realm 5: Spring - Blossom Garden -->
+          <div class="timeline-realm-card" data-env-index="4" role="button" tabindex="0" aria-label="Switch to Spring - Blossom Garden">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_spring.jpg" alt="Spring Blossom Garden" class="timeline-thumb-img" draggable="false">
+              <div class="timeline-thumb-overlay"></div>
+            </div>
+            <div class="timeline-card-pill">Spring – Blossom Garden</div>
+          </div>
+        </div>
+
+        <!-- Devotional Bottom Banner -->
+        <div class="timeline-footer-row">
+          <div class="timeline-devotional-mantra">
+            <span class="mantra-sparkle" aria-hidden="true">✨</span>
+            <span>Experience New Divine Surroundings as You Play!</span>
+            <span class="mantra-sparkle" aria-hidden="true">✨</span>
+          </div>
+          <div class="timeline-shlok" aria-hidden="true">॥ श्री गणेशाय नमः ॥</div>
+        </div>
+      </nav>
 
       <!-- ENVIRONMENT STATUS BADGE (COMPATIBILITY) -->
       <footer class="environment-status-badge is-sr-only" role="status" aria-live="polite">

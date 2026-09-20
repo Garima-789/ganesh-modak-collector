@@ -431,49 +431,23 @@ html, body {
   justify-content: flex-end;
 }
 
-/* Mandapa Stepped Terrace Base */
+/* Courtyard Stone Floor with Perspective (Transparent to let background stone terrace shine through) */
 .courtyard-terrace {
-  position: absolute;
-  bottom: var(--courtyard-height);
-  left: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+  display: none !important;
 }
 
-.terrace-step {
-  width: 100%;
-  border-top: 1px solid rgba(255, 215, 0, 0.35);
-  box-shadow: inset 0 2px 4px rgba(255, 235, 170, 0.15), 0 3px 6px rgba(0, 0, 0, 0.6);
-}
-.step-top {
-  height: 8px;
-  background: linear-gradient(180deg, #5c202d 0%, #3d121c 100%);
-}
-.step-mid {
-  height: 10px;
-  background: linear-gradient(180deg, #4f1925 0%, #2f0b14 100%);
-}
-.step-bottom {
-  height: 14px;
-  background: linear-gradient(180deg, #42131e 0%, #24070e 100%);
-}
-
-/* Courtyard Stone Floor with Perspective */
 .courtyard-floor {
   position: relative;
   width: 100%;
   height: var(--courtyard-height);
-  background: linear-gradient(
-    180deg,
-    #2c0d15 0%,
-    #3c141e 30%,
-    #4a1824 60%,
-    #24090f 100%
-  );
+  background: transparent !important;
   perspective: 700px;
-  overflow: hidden;
-  box-shadow: inset 0 10px 25px rgba(0, 0, 0, 0.7);
+  overflow: visible;
+  box-shadow: none !important;
+}
+
+.stone-tiles-perspective {
+  display: none !important;
 }
 
 .stone-tiles-perspective {
@@ -545,28 +519,16 @@ html, body {
 
 /* GRAND CUSPED TORANA ARCH (TOP ENTRANCE) */
 .torana-arch-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: var(--arch-height);
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.65));
+  display: none !important;
 }
 
 .torana-svg {
-  width: 100%;
-  height: 100%;
+  display: none !important;
 }
 
-/* CARVED TEMPLE PILLARS (LEFT & RIGHT) */
+/* CARVED TEMPLE PILLARS (Integrated with background scenes) */
 .temple-pillar {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: var(--pillar-width);
-  display: flex;
-  flex-direction: column;
-  filter: drop-shadow(4px 0 12px rgba(0, 0, 0, 0.65));
+  display: none !important;
 }
 
 .pillar-left {
@@ -4412,7 +4374,7 @@ html, body {
 /* Frosted Glass Touch Controls */
 .touch-controls {
   position: absolute;
-  bottom: clamp(16px, 3.5vh, 32px);
+  bottom: clamp(92px, 14vh, 122px);
   left: 20px;
   right: 20px;
   display: flex;
@@ -4468,6 +4430,175 @@ html, body {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
 }
 
+/* ==========================================================================
+   MUSHAK JI – SACRED HELPER COMPANION
+   ========================================================================== */
+.mushak-companion {
+  position: absolute;
+  bottom: clamp(10px, 2vh, 22px);
+  left: 0;
+  width: 50px;
+  height: 42px;
+  z-index: 22;
+  pointer-events: none;
+  transform-origin: bottom center;
+  transition: transform 0.08s linear;
+}
+
+.mushak-aura {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.35) 0%, rgba(255, 179, 0, 0.15) 50%, transparent 75%);
+  filter: blur(2px);
+  animation: mushakAuraPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes mushakAuraPulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  100% { transform: scale(1.15); opacity: 0.95; }
+}
+
+.mushak-sprite {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.mushak-companion.is-scampering .mushak-sprite {
+  animation: mushakScamper 0.28s ease-in-out infinite alternate;
+}
+
+.mushak-companion.is-dashing .mushak-sprite {
+  animation: mushakDash 0.15s ease-in-out infinite alternate;
+}
+
+@keyframes mushakScamper {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(4deg); }
+  100% { transform: translateY(0) rotate(-2deg); }
+}
+
+@keyframes mushakDash {
+  0% { transform: translateY(-2px) scaleX(1.1); }
+  100% { transform: translateY(2px) scaleX(0.95); }
+}
+
+/* Mouse Body Parts */
+.mushak-body {
+  position: absolute;
+  bottom: 6px;
+  left: 10px;
+  width: 24px;
+  height: 18px;
+  background: radial-gradient(ellipse at 40% 35%, #e8dcc8 0%, #b89f82 60%, #826a54 100%);
+  border-radius: 50% 60% 45% 45%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.mushak-snout {
+  position: absolute;
+  bottom: 11px;
+  right: 12px;
+  width: 10px;
+  height: 9px;
+  background: #d8c4ad;
+  border-radius: 40% 60% 60% 40%;
+}
+
+.mushak-eye {
+  position: absolute;
+  bottom: 15px;
+  right: 16px;
+  width: 3.5px;
+  height: 3.5px;
+  background: #110804;
+  border-radius: 50%;
+  box-shadow: 0 0 2px #fff;
+}
+
+.mushak-ear {
+  position: absolute;
+  width: 8px;
+  height: 10px;
+  background: radial-gradient(circle, #f8bbd0 30%, #a48870 100%);
+  border-radius: 50% 50% 30% 30%;
+}
+
+.mushak-ear.ear-left {
+  top: 8px;
+  left: 16px;
+  transform: rotate(-15deg);
+}
+
+.mushak-ear.ear-right {
+  top: 9px;
+  left: 22px;
+  transform: rotate(10deg);
+}
+
+.mushak-tail {
+  position: absolute;
+  bottom: 12px;
+  left: 2px;
+  width: 14px;
+  height: 10px;
+  border: 2px solid #b89f82;
+  border-color: transparent transparent #b89f82 #b89f82;
+  border-radius: 50%;
+  transform: rotate(-25deg);
+}
+
+.mushak-dhoti {
+  position: absolute;
+  bottom: 5px;
+  left: 14px;
+  width: 14px;
+  height: 8px;
+  background: linear-gradient(135deg, #ffd54f 0%, #ff9800 100%);
+  border-radius: 3px 3px 6px 6px;
+  border-top: 1px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.mushak-sweet {
+  position: absolute;
+  bottom: 10px;
+  right: 6px;
+  font-size: 11px;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+  animation: sweetWiggle 1s ease-in-out infinite alternate;
+}
+
+@keyframes sweetWiggle {
+  0% { transform: scale(0.9) rotate(-6deg); }
+  100% { transform: scale(1.05) rotate(6deg); }
+}
+
+.mushak-speech {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  background: rgba(26, 12, 6, 0.9);
+  border: 1px solid #ffd54f;
+  color: #ffd54f;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 8px rgba(255, 215, 0, 0.5);
+  pointer-events: none;
+  animation: speechPop 0.25s ease-out;
+}
+
+@keyframes speechPop {
+  0% { transform: translateX(-50%) scale(0.6); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
 /* Ganesh Ji Sacred Ground Yantra & Orbit Aura */
 .player-ground-mandala {
   position: absolute;
@@ -4512,15 +4643,17 @@ html, body {
   100% { transform: scale(1.04); opacity: 0.95; }
 }
 
-/* Bottom Journey Timeline Track (Hidden in favor of full immersive background cycling) */
+/* Bottom Journey Timeline Track (Restored to match reference image) */
 .realms-timeline-bar {
-  display: none !important;
+  display: flex !important;
   position: absolute;
   bottom: 8px;
   left: 14px;
   right: 14px;
   z-index: 70;
-  pointer-events: none;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
 }
 
 .timeline-cards-track {
@@ -4701,32 +4834,57 @@ html, body {
     display: none; /* Hide tip scroll on compact mobile to maximize playing arena */
   }
   .touch-controls {
-    bottom: clamp(14px, 2.5vh, 24px);
-    left: 10px;
-    right: 10px;
+    bottom: clamp(76px, 11.5vh, 98px);
+    left: 8px;
+    right: 8px;
   }
   .touch-glass-btn {
-    width: 54px;
-    height: 54px;
+    width: 52px;
+    height: 52px;
   }
   .touch-triangle-arrow {
-    font-size: 20px;
+    font-size: 18px;
+  }
+  .realms-timeline-bar {
+    bottom: 3px;
+    left: 3px;
+    right: 3px;
+    z-index: 60;
   }
   .timeline-cards-track {
-    gap: 5px;
+    gap: 3px;
     overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: center;
     padding-bottom: 2px;
   }
+  .timeline-cards-track::-webkit-scrollbar {
+    display: none;
+  }
+  .timeline-track-arrow {
+    font-size: 10px;
+    margin: 0 1px;
+    opacity: 0.75;
+  }
   .timeline-thumb-box {
-    width: 68px;
-    height: 38px;
+    width: clamp(52px, 15.5vw, 66px);
+    height: clamp(32px, 9.2vw, 38px);
+    border-radius: 4px;
   }
   .timeline-card-pill {
-    font-size: 7.5px;
-    padding: 1px 4px;
+    font-size: 6.8px;
+    padding: 1px 3px;
+    max-width: 62px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .timeline-devotional-mantra {
     display: none; /* Keep clean centered banner on compact mobile */
+  }
+  .timeline-shlok {
+    font-size: 10.5px;
+    margin-top: 2px;
   }
 }
 
