@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Ganesh Ji – Modak Collector. A devotional, culturally rich traditional Indian temple browser game.">
+  <title>Ganesh Ji – Modak Collector</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ROOT GAME CONTAINER -->
+  <div id="game-wrapper" class="game-wrapper">
+
+    <!-- MAIN RESPONSIVE GAME VIEWPORT -->
+    <main id="game-viewport" class="game-viewport" role="region" aria-label="Ganesh Ji Modak Collector Temple Environment">
+
+      <!-- ==========================================
+           LAYER 1: SACRED SKY & SOLAR GLOW
+           ========================================== -->
+      <div class="layer sky-layer" aria-hidden="true">
+        <!-- Animated Solar Aura -->
+        <div class="sun-aura"></div>
+        <div class="sun-disc"></div>
+        <div class="sun-halo"></div>
+        <!-- Sacred Chandra (Moon) for Festival Night Mode -->
+        <div class="moon-halo"></div>
+        <div class="moon-disc"></div>
+        <!-- Environment Ambient Overlays -->
+        <div class="env-foliage-layer"></div>
+        <div class="env-rain-layer"></div>
+        <div class="sky-mist"></div>
+      </div>
+
+      <!-- ==========================================
+           LAYER 2: SLOWLY DRIFTING CLOUDS
+           ========================================== -->
+      <div class="layer clouds-layer" aria-hidden="true">
+        <div class="cloud cloud-1">
+          <span class="cloud-puff puff-1"></span>
+          <span class="cloud-puff puff-2"></span>
+          <span class="cloud-puff puff-3"></span>
+        </div>
+        <div class="cloud cloud-2">
+          <span class="cloud-puff puff-1"></span>
+          <span class="cloud-puff puff-2"></span>
+          <span class="cloud-puff puff-3"></span>
+        </div>
+        <div class="cloud cloud-3">
+          <span class="cloud-puff puff-1"></span>
+          <span class="cloud-puff puff-2"></span>
+          <span class="cloud-puff puff-3"></span>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           LAYER 3: DISTANT TEMPLE ARCHITECTURE
+           ========================================== -->
+      <div class="layer distant-architecture" aria-hidden="true">
+        <!-- Far Sacred Mountains & Horizon Silhouette -->
+        <svg class="distant-skyline-svg" viewBox="0 0 1200 320" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="farSpireGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#4a1525" stop-opacity="0.55"/>
+              <stop offset="60%" stop-color="#360d1b" stop-opacity="0.75"/>
+              <stop offset="100%" stop-color="#240712" stop-opacity="0.95"/>
+            </linearGradient>
+            <linearGradient id="midSpireGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#6e1d2c" stop-opacity="0.85"/>
+              <stop offset="50%" stop-color="#4a101d" stop-opacity="0.92"/>
+              <stop offset="100%" stop-color="#2d0811" stop-opacity="1"/>
+            </linearGradient>
+            <linearGradient id="flagGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ff7700"/>
+              <stop offset="100%" stop-color="#e65100"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Back Layer: Distant Temple Shikhara & Spire Horizon -->
+          <g class="distant-spires-back" fill="url(#farSpireGrad)">
+            <!-- Far Left Spire -->
+            <path d="M 80,240 C 95,190 105,140 115,100 L 115,90 L 117,75 L 119,90 L 119,100 C 129,140 139,190 154,240 Z" />
+            <ellipse cx="117" cy="73" rx="6" ry="3" />
+            <path d="M 116,70 L 117,60 L 118,70 Z" />
+            <!-- Small Chhatri Pavilion Far Left -->
+            <path d="M 180,240 L 180,180 C 190,165 210,165 220,180 L 220,240 Z" />
+            <path d="M 185,175 C 195,160 205,160 215,175 Z" />
+
+            <!-- Far Center-Left Vimana Spire -->
+            <path d="M 330,240 C 350,170 365,110 380,60 L 380,50 L 382,38 L 384,50 L 384,60 C 399,110 414,170 434,240 Z" />
+            <ellipse cx="382" cy="48" rx="8" ry="4" />
+            <path d="M 380,44 L 382,30 L 384,44 Z" />
+
+            <!-- Grand Central Shikhara Silhouette (Towering in Distance) -->
+            <path d="M 540,240 C 565,150 585,80 600,22 L 600,15 L 602,5 L 604,15 L 604,22 C 619,80 639,150 664,240 Z" />
+            <!-- Kalasha finials on Central Spire -->
+            <ellipse cx="602" cy="18" rx="10" ry="5" />
+            <ellipse cx="602" cy="12" rx="7" ry="3" />
+            <path d="M 601,9 L 602,0 L 603,9 Z" />
+
+            <!-- Far Center-Right Vimana Spire -->
+            <path d="M 760,240 C 780,170 795,110 810,60 L 810,50 L 812,38 L 814,50 L 814,60 C 829,110 844,170 864,240 Z" />
+            <ellipse cx="812" cy="48" rx="8" ry="4" />
+            <path d="M 810,44 L 812,30 L 814,44 Z" />
+
+            <!-- Far Right Spire -->
+            <path d="M 1040,240 C 1055,190 1065,140 1075,100 L 1075,90 L 1077,75 L 1079,90 L 1079,100 C 1089,140 1099,190 1114,240 Z" />
+            <ellipse cx="1077" cy="73" rx="6" ry="3" />
+            <!-- Small Chhatri Far Right -->
+            <path d="M 975,240 L 975,180 C 985,165 1005,165 1015,180 L 1015,240 Z" />
+          </g>
+
+          <!-- Mid Layer: Mandir Towers, Chhatris & Fluttering Saffron Flags -->
+          <g class="distant-spires-mid" fill="url(#midSpireGrad)">
+            <!-- Left Mid Shikhara -->
+            <path d="M 230,270 C 248,200 262,145 275,105 L 275,98 L 277,88 L 279,98 L 279,105 C 292,145 306,200 324,270 Z" />
+            <ellipse cx="277" cy="96" rx="8" ry="4" />
+            <!-- Left Flag Pole & Flag -->
+            <line x1="277" y1="88" x2="277" y2="70" stroke="#ffd54f" stroke-width="2" />
+            <path class="flag-flutter" d="M 277,70 L 297,77 L 277,84 Z" fill="url(#flagGrad)" />
+
+            <!-- Mid Central Twin Shikhara Left -->
+            <path d="M 480,270 C 495,210 508,160 520,120 L 520,112 L 522,102 L 524,112 L 524,120 C 536,160 549,210 564,270 Z" />
+            <ellipse cx="522" cy="110" rx="7" ry="3" />
+
+            <!-- Mid Central Twin Shikhara Right -->
+            <path d="M 640,270 C 655,210 668,160 680,120 L 680,112 L 682,102 L 684,112 L 684,120 C 696,160 709,210 724,270 Z" />
+            <ellipse cx="682" cy="110" rx="7" ry="3" />
+            <!-- Center Flag Pole & Flag -->
+            <line x1="682" y1="102" x2="682" y2="82" stroke="#ffd54f" stroke-width="2" />
+            <path class="flag-flutter" d="M 682,82 L 705,90 L 682,98 Z" fill="url(#flagGrad)" />
+
+            <!-- Right Mid Shikhara -->
+            <path d="M 880,270 C 898,200 912,145 925,105 L 925,98 L 927,88 L 929,98 L 929,105 C 942,145 956,200 974,270 Z" />
+            <ellipse cx="927" cy="96" rx="8" ry="4" />
+            <!-- Right Flag Pole & Flag -->
+            <line x1="927" y1="88" x2="927" y2="70" stroke="#ffd54f" stroke-width="2" />
+            <path class="flag-flutter" d="M 927,70 L 947,77 L 927,84 Z" fill="url(#flagGrad)" />
+
+            <!-- Connecting Terrace Balustrade & Arched Walls -->
+            <rect x="0" y="235" width="1200" height="85" fill="#240712" />
+            <!-- Arched cutouts in terrace wall -->
+            <path d="M 50,235 C 50,225 70,225 70,235 Z M 110,235 C 110,225 130,225 130,235 Z M 170,235 C 170,225 190,225 190,235 Z M 350,235 C 350,225 370,225 370,235 Z M 410,235 C 410,225 430,225 430,235 Z M 770,235 C 770,225 790,225 790,235 Z M 830,235 C 830,225 850,225 850,235 Z M 1010,235 C 1010,225 1030,225 1030,235 Z M 1070,235 C 1070,225 1090,225 1090,235 Z" fill="#6e1d2c" />
+          </g>
+        </svg>
+      </div>
+
+      <!-- ==========================================
+           LAYER 4 & 5: TEMPLE COURTYARD FLOOR & RANGOLI
+           ========================================== -->
+      <div class="layer courtyard-layer" aria-hidden="true">
+        <!-- Mandapa Stepped Terrace Base -->
+        <div class="courtyard-terrace">
+          <div class="terrace-step step-top"></div>
+          <div class="terrace-step step-mid"></div>
+          <div class="terrace-step step-bottom"></div>
+        </div>
+
+        <!-- Courtyard Stone Floor with Perspective -->
+        <div class="courtyard-floor">
+          <div class="stone-tiles-perspective">
+            <div class="stone-grid-lines"></div>
+            <div class="stone-glow-ambient"></div>
+            <div class="env-water-reflection"></div>
+          </div>
+
+          <!-- LAYER 5: TRADITIONAL SYMMETRICAL RANGOLI -->
+          <div class="rangoli-container">
+            <svg class="rangoli-svg" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="goldPetalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffd54f"/>
+                  <stop offset="100%" stop-color="#ff9800"/>
+                </linearGradient>
+                <linearGradient id="kumkumGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#e91e63"/>
+                  <stop offset="100%" stop-color="#b71c1c"/>
+                </linearGradient>
+                <linearGradient id="saffronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffb74d"/>
+                  <stop offset="100%" stop-color="#e65100"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Outermost Flourish Border Ring -->
+              <circle cx="250" cy="250" r="235" fill="none" stroke="#d4af37" stroke-width="2.5" stroke-dasharray="6,4" opacity="0.85"/>
+              <circle cx="250" cy="250" r="222" fill="none" stroke="#ffb74d" stroke-width="1.5" opacity="0.75"/>
+
+              <!-- Outer 16 Sacred Lotus Petals -->
+              <g id="outer-petals" fill="url(#kumkumGrad)" stroke="#ffd54f" stroke-width="1.2" opacity="0.9">
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(22.5 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(45 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(67.5 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(90 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(112.5 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(135 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(157.5 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(180 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(202.5 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(225 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(247.5 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(270 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(292.5 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(315 250 250)" />
+                <path d="M 250,22 C 240,65 240,95 250,115 C 260,95 260,65 250,22 Z" transform="rotate(337.5 250 250)" />
+              </g>
+
+              <!-- Intermediate Golden Decorative Ring -->
+              <circle cx="250" cy="250" r="145" fill="none" stroke="#ffd54f" stroke-width="3" opacity="0.9"/>
+              <circle cx="250" cy="250" r="138" fill="none" stroke="#e65100" stroke-width="2" opacity="0.8"/>
+
+              <!-- Saffron Diamond Accents on Ring -->
+              <g fill="#ffd54f" opacity="0.85">
+                <polygon points="250,100 255,106 250,112 245,106" />
+                <polygon points="250,100 255,106 250,112 245,106" transform="rotate(45 250 250)" />
+                <polygon points="250,100 255,106 250,112 245,106" transform="rotate(90 250 250)" />
+                <polygon points="250,100 255,106 250,112 245,106" transform="rotate(135 250 250)" />
+                <polygon points="250,100 255,106 250,112 245,106" transform="rotate(180 250 250)" />
+                <polygon points="250,100 255,106 250,112 245,106" transform="rotate(225 250 250)" />
+                <polygon points="250,100 255,106 250,112 245,106" transform="rotate(270 250 250)" />
+                <polygon points="250,100 255,106 250,112 245,106" transform="rotate(315 250 250)" />
+              </g>
+
+              <!-- Inner 8 Saffron Petals -->
+              <g id="inner-petals" fill="url(#saffronGrad)" stroke="#fff" stroke-width="1.2" opacity="0.95">
+                <path d="M 250,118 C 238,155 238,190 250,205 C 262,190 262,155 250,118 Z" />
+                <path d="M 250,118 C 238,155 238,190 250,205 C 262,190 262,155 250,118 Z" transform="rotate(45 250 250)" />
+                <path d="M 250,118 C 238,155 238,190 250,205 C 262,190 262,155 250,118 Z" transform="rotate(90 250 250)" />
+                <path d="M 250,118 C 238,155 238,190 250,205 C 262,190 262,155 250,118 Z" transform="rotate(135 250 250)" />
+                <path d="M 250,118 C 238,155 238,190 250,205 C 262,190 262,155 250,118 Z" transform="rotate(180 250 250)" />
+                <path d="M 250,118 C 238,155 238,190 250,205 C 262,190 262,155 250,118 Z" transform="rotate(225 250 250)" />
+                <path d="M 250,118 C 238,155 238,190 250,205 C 262,190 262,155 250,118 Z" transform="rotate(270 250 250)" />
+                <path d="M 250,118 C 238,155 238,190 250,205 C 262,190 262,155 250,118 Z" transform="rotate(315 250 250)" />
+              </g>
+
+              <!-- Central Mandala Core -->
+              <circle cx="250" cy="250" r="50" fill="url(#goldPetalGrad)" stroke="#fff" stroke-width="1.8"/>
+              <circle cx="250" cy="250" r="32" fill="#b71c1c" stroke="#ffd54f" stroke-width="1.5"/>
+              <circle cx="250" cy="250" r="16" fill="#ffd54f" stroke="#fff" stroke-width="1.2"/>
+              <!-- Sacred Central Bindu -->
+              <circle cx="250" cy="250" r="6" fill="#b71c1c" />
+
+              <!-- Decorative Concentric Sacred Rice Powder Dots (Bindus) -->
+              <g fill="#fff" opacity="0.95">
+                <circle cx="250" cy="76" r="3.5" />
+                <circle cx="250" cy="76" r="3.5" transform="rotate(45 250 250)" />
+                <circle cx="250" cy="76" r="3.5" transform="rotate(90 250 250)" />
+                <circle cx="250" cy="76" r="3.5" transform="rotate(135 250 250)" />
+                <circle cx="250" cy="76" r="3.5" transform="rotate(180 250 250)" />
+                <circle cx="250" cy="76" r="3.5" transform="rotate(225 250 250)" />
+                <circle cx="250" cy="76" r="3.5" transform="rotate(270 250 250)" />
+                <circle cx="250" cy="76" r="3.5" transform="rotate(315 250 250)" />
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           LAYER 6, 7 & 8: TEMPLE FOREGROUND FRAME
+           (PILLARS, CUSPED ARCH, DIYAS, GARLANDS, BELLS)
+           ========================================== -->
+      <div class="layer temple-frame" aria-hidden="true">
+
+        <!-- GRAND CUSPED TORANA ARCH (TOP ENTRANCE) -->
+        <div class="torana-arch-container">
+          <svg class="torana-svg" viewBox="0 0 1200 160" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="stoneArchGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#5a1828"/>
+                <stop offset="35%" stop-color="#7e2439"/>
+                <stop offset="70%" stop-color="#4e1320"/>
+                <stop offset="100%" stop-color="#2a0812"/>
+              </linearGradient>
+              <linearGradient id="goldCarvingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffecb3"/>
+                <stop offset="40%" stop-color="#ffd54f"/>
+                <stop offset="100%" stop-color="#b27b00"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Top Arch Beam & Moulding -->
+            <rect x="0" y="0" width="1200" height="32" fill="url(#stoneArchGrad)" />
+            <rect x="0" y="28" width="1200" height="6" fill="url(#goldCarvingGrad)" />
+
+            <!-- Traditional Indian Cusped / Multi-Foil Arch Profile -->
+            <path d="M 0,34 L 1200,34 L 1200,80 
+                     C 1120,80 1060,95 1010,120 
+                     C 960,95 910,80 850,90 
+                     C 790,80 740,95 690,115 
+                     C 650,95 625,82 600,80 
+                     C 575,82 550,95 510,115 
+                     C 460,95 410,80 350,90 
+                     C 290,80 240,95 190,120 
+                     C 140,95 80,80 0,80 Z" 
+                  fill="url(#stoneArchGrad)" />
+
+            <!-- Gold Inlay Border along Arch Curve -->
+            <path d="M 0,80 
+                     C 80,80 140,95 190,120 
+                     C 240,95 290,80 350,90 
+                     C 410,80 460,95 510,115 
+                     C 550,95 575,82 600,80 
+                     C 625,82 650,95 690,115 
+                     C 740,95 790,80 850,90 
+                     C 910,80 960,95 1010,120 
+                     C 1060,95 1120,80 1200,80" 
+                  fill="none" stroke="url(#goldCarvingGrad)" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- Center Arch Medallion / Keystoned Lotus -->
+            <circle cx="600" cy="55" r="22" fill="url(#goldCarvingGrad)" stroke="#5a1828" stroke-width="2"/>
+            <circle cx="600" cy="55" r="14" fill="#a81c2d" />
+            <circle cx="600" cy="55" r="6" fill="#ffd54f" />
+          </svg>
+        </div>
+
+        <!-- LEFT CARVED TEMPLE PILLAR -->
+        <aside class="temple-pillar pillar-left">
+          <div class="pillar-capital">
+            <div class="capital-tier tier-top"></div>
+            <div class="capital-tier tier-bracket">
+              <span class="bracket-carving"></span>
+            </div>
+            <div class="capital-tier tier-moulding"></div>
+          </div>
+          <div class="pillar-shaft">
+            <div class="flute-line f-1"></div>
+            <div class="flute-line f-2"></div>
+            <div class="flute-line f-3"></div>
+            <div class="carved-band band-top"></div>
+            <div class="carved-band band-mid"></div>
+            <div class="carved-band band-bottom"></div>
+          </div>
+          <div class="pillar-base">
+            <div class="base-tier tier-stepped"></div>
+            <div class="base-tier tier-plinth"></div>
+          </div>
+        </aside>
+
+        <!-- RIGHT CARVED TEMPLE PILLAR -->
+        <aside class="temple-pillar pillar-right">
+          <div class="pillar-capital">
+            <div class="capital-tier tier-top"></div>
+            <div class="capital-tier tier-bracket">
+              <span class="bracket-carving"></span>
+            </div>
+            <div class="capital-tier tier-moulding"></div>
+          </div>
+          <div class="pillar-shaft">
+            <div class="flute-line f-1"></div>
+            <div class="flute-line f-2"></div>
+            <div class="flute-line f-3"></div>
+            <div class="carved-band band-top"></div>
+            <div class="carved-band band-mid"></div>
+            <div class="carved-band band-bottom"></div>
+          </div>
+          <div class="pillar-base">
+            <div class="base-tier tier-stepped"></div>
+            <div class="base-tier tier-plinth"></div>
+          </div>
+        </aside>
+
+        <!-- ==========================================
+             LAYER 7: MARIGOLD GARLANDS (GENDA PHOOL TORAN)
+             ========================================== -->
+        <div class="garlands-container">
+          <!-- Center Top Swag Garland -->
+          <div class="garland-swag swag-center">
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-node flower-leaf"></div>
+            <div class="flower-node flower-yellow"></div>
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-node flower-leaf"></div>
+            <div class="flower-node flower-yellow"></div>
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-node flower-yellow"></div>
+            <div class="flower-node flower-leaf"></div>
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-node flower-yellow"></div>
+            <div class="flower-node flower-leaf"></div>
+            <div class="flower-node flower-orange"></div>
+          </div>
+
+          <!-- Left Torana Drop Garland -->
+          <div class="garland-drop drop-left">
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-node flower-yellow"></div>
+            <div class="flower-node flower-leaf"></div>
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-node flower-yellow"></div>
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-pendant"></div>
+          </div>
+
+          <!-- Right Torana Drop Garland -->
+          <div class="garland-drop drop-right">
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-node flower-yellow"></div>
+            <div class="flower-node flower-leaf"></div>
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-node flower-yellow"></div>
+            <div class="flower-node flower-orange"></div>
+            <div class="flower-pendant"></div>
+          </div>
+        </div>
+
+        <!-- ==========================================
+             LAYER 8: SWINGING TEMPLE BELLS (GHANTI)
+             ========================================== -->
+        <div class="bells-container">
+          <div class="temple-bell bell-left">
+            <div class="bell-chain"></div>
+            <div class="bell-hook"></div>
+            <div class="bell-body">
+              <div class="bell-rim"></div>
+              <div class="bell-clapper"></div>
+            </div>
+          </div>
+
+          <div class="temple-bell bell-center-left">
+            <div class="bell-chain"></div>
+            <div class="bell-hook"></div>
+            <div class="bell-body">
+              <div class="bell-rim"></div>
+              <div class="bell-clapper"></div>
+            </div>
+          </div>
+
+          <div class="temple-bell bell-center-right">
+            <div class="bell-chain"></div>
+            <div class="bell-hook"></div>
+            <div class="bell-body">
+              <div class="bell-rim"></div>
+              <div class="bell-clapper"></div>
+            </div>
+          </div>
+
+          <div class="temple-bell bell-right">
+            <div class="bell-chain"></div>
+            <div class="bell-hook"></div>
+            <div class="bell-body">
+              <div class="bell-rim"></div>
+              <div class="bell-clapper"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================
+             LAYER 6: TRADITIONAL BRASS DIYAS
+             ========================================== -->
+        <div class="diyas-container">
+          <!-- Left Foreground Diya on Stone Pedestal -->
+          <div class="diya-group diya-left-front">
+            <div class="stone-pedestal">
+              <div class="pedestal-cap"></div>
+              <div class="pedestal-body"></div>
+            </div>
+            <div class="brass-diya">
+              <div class="diya-flame-wrap">
+                <div class="diya-glow"></div>
+                <div class="diya-flame">
+                  <div class="flame-core"></div>
+                </div>
+              </div>
+              <div class="diya-body">
+                <div class="diya-rim"></div>
+                <div class="diya-base"></div>
+              </div>
+              <div class="diya-light-reflection"></div>
+            </div>
+          </div>
+
+          <!-- Left Midground Courtyard Diya -->
+          <div class="diya-group diya-left-mid">
+            <div class="brass-diya diya-small">
+              <div class="diya-flame-wrap">
+                <div class="diya-glow"></div>
+                <div class="diya-flame">
+                  <div class="flame-core"></div>
+                </div>
+              </div>
+              <div class="diya-body">
+                <div class="diya-rim"></div>
+                <div class="diya-base"></div>
+              </div>
+              <div class="diya-light-reflection"></div>
+            </div>
+          </div>
+
+          <!-- Right Midground Courtyard Diya -->
+          <div class="diya-group diya-right-mid">
+            <div class="brass-diya diya-small">
+              <div class="diya-flame-wrap">
+                <div class="diya-glow"></div>
+                <div class="diya-flame">
+                  <div class="flame-core"></div>
+                </div>
+              </div>
+              <div class="diya-body">
+                <div class="diya-rim"></div>
+                <div class="diya-base"></div>
+              </div>
+              <div class="diya-light-reflection"></div>
+            </div>
+          </div>
+
+          <!-- Right Foreground Diya on Stone Pedestal -->
+          <div class="diya-group diya-right-front">
+            <div class="stone-pedestal">
+              <div class="pedestal-cap"></div>
+              <div class="pedestal-body"></div>
+            </div>
+            <div class="brass-diya">
+              <div class="diya-flame-wrap">
+                <div class="diya-glow"></div>
+                <div class="diya-flame">
+                  <div class="flame-core"></div>
+                </div>
+              </div>
+              <div class="diya-body">
+                <div class="diya-rim"></div>
+                <div class="diya-base"></div>
+              </div>
+              <div class="diya-light-reflection"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==========================================
+           GAME ARENA: GANESH JI PLAYABLE CHARACTER
+           ========================================== -->
+      <section id="game-arena" class="game-arena" aria-label="Play Field for Ganesh Ji and Modaks">
+        <!-- MODAKS CONTAINER (FALLING ITEMS) -->
+        <div id="modaks-container" class="modaks-container" aria-label="Falling Modaks"></div>
+
+        <!-- LADOOS CONTAINER (STEP 3) -->
+        <div id="ladoos-container" class="ladoos-container" aria-label="Falling Ladoos"></div>
+
+        <!-- DIVINE FLOWERS CONTAINER (STEP 3) -->
+        <div id="flowers-container" class="flowers-container" aria-label="Divine Flowers"></div>
+
+        <!-- MATKA OBSTACLES CONTAINER (STEP 3) -->
+        <div id="matkas-container" class="matkas-container" aria-label="Falling Matka Obstacles"></div>
+
+        <!-- COLLECTION & SCORE EFFECTS CONTAINER -->
+        <div id="effects-container" class="effects-container" aria-hidden="true"></div>
+
+        <!-- GANESH JI PLAYABLE CHARACTER (LOCAL IMAGE ASSET) -->
+        <div id="ganesh-player" class="ganesh-player power-stage-1 is-idle" role="img" aria-label="Lord Ganesh Ji character">
+          <!-- Sacred Ground Yantra Floor Projection (User Interface Alignment) -->
+          <div id="player-ground-mandala" class="player-ground-mandala" aria-hidden="true">
+            <svg class="ground-yantra-svg" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="yantraGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffd54f"/>
+                  <stop offset="50%" stop-color="#ffb300"/>
+                  <stop offset="100%" stop-color="#ff8f00"/>
+                </linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="92" fill="none" stroke="url(#yantraGold)" stroke-width="2.5" stroke-dasharray="4,3"/>
+              <circle cx="100" cy="100" r="82" fill="none" stroke="#ffe082" stroke-width="1.8"/>
+              <g stroke="url(#yantraGold)" stroke-width="1.5" fill="none" opacity="0.9">
+                <polygon points="100,22 178,145 22,145"/>
+                <polygon points="100,178 178,55 22,55"/>
+                <polygon points="155,45 155,155 45,100"/>
+                <polygon points="45,45 45,155 155,100"/>
+              </g>
+              <circle cx="100" cy="100" r="48" fill="none" stroke="#ffd54f" stroke-width="2"/>
+              <circle cx="100" cy="100" r="26" fill="rgba(255, 179, 0, 0.25)" stroke="#fff" stroke-width="1.5"/>
+              <circle cx="100" cy="100" r="8" fill="#ffd54f"/>
+            </svg>
+          </div>
+          <!-- Golden Sparkle Ring Aura -->
+          <div id="player-sparkle-ring" class="player-sparkle-ring" aria-hidden="true"></div>
+          <!-- Step 3 Sacred Divine Power Aura Layer -->
+          <div id="ganesh-divine-aura" class="ganesh-divine-aura" aria-hidden="true"></div>
+          <!-- Step 3 Divine Flower Attraction Ring -->
+          <div id="ganesh-flower-aura" class="ganesh-flower-aura is-hidden" aria-hidden="true"></div>
+
+          <img
+            id="ganesh-image"
+            src="assets/ganesh-ji.png"
+            alt="Ganesh Ji"
+            class="ganesh-player-image"
+            draggable="false"
+          >
+        </div>
+      </section>
+
+      <!-- ==========================================
+           LAYER 9: ATMOSPHERIC PARTICLES CANVAS
+           (GOLDEN SACRED DUST & DRIFTING MARIGOLD PETALS)
+           ========================================== -->
+      <canvas id="particle-canvas" class="particle-canvas" aria-hidden="true"></canvas>
+
+      <!-- ==========================================
+           TEMPORARY CELEBRATION / POWER AWAKENED BANNER (STEP 3)
+           ========================================== -->
+      <div id="hud-power-banner" class="hud-power-banner is-hidden" role="status" aria-live="polite">
+        <span class="power-banner-sparkle" aria-hidden="true">✨</span>
+        <span id="hud-power-banner-text" class="power-banner-text">POWER AWAKENED</span>
+        <span class="power-banner-sparkle" aria-hidden="true">✨</span>
+      </div>
+
+      <!-- ==========================================
+           DIVINE ENVIRONMENT TRANSITION TOAST BANNER (STEP 8-10)
+           ========================================== -->
+      <div id="hud-env-banner" class="hud-env-banner is-hidden" role="status" aria-live="polite">
+        <span class="env-banner-sub">✨ NEW DIVINE SURROUNDING ✨</span>
+        <h2 id="hud-env-banner-title" class="env-banner-title">LOTUS LAKE</h2>
+      </div>
+
+      <!-- ==========================================
+           TOUCH CONTROLS FOR MOBILE / TABLET / INTERACTIVE
+           ========================================== -->
+      <nav id="touch-controls" class="touch-controls" aria-label="Game Movement Controls">
+        <div class="touch-controls-group-left">
+          <button type="button" id="btn-touch-left" class="touch-glass-btn" aria-label="Move Ganesh Ji Left">
+            <span class="touch-triangle-arrow">◀</span>
+          </button>
+          <button type="button" id="btn-touch-right" class="touch-glass-btn" aria-label="Move Ganesh Ji Right">
+            <span class="touch-triangle-arrow">▶</span>
+          </button>
+        </div>
+        <div class="touch-controls-group-right">
+          <button type="button" id="btn-touch-action" class="touch-glass-btn touch-action-btn" aria-label="Divine Action / Boost">
+            <span class="touch-triangle-arrow">▲</span>
+          </button>
+        </div>
+      </nav>
+
+      <!-- ==========================================
+           EXACT TOP HUD OVERLAY (USER INTERFACE ALIGNMENT)
+           ========================================== -->
+      <header class="hud-overlay" role="banner">
+        <!-- TOP ROW CONTAINER -->
+        <div class="hud-top-strip">
+          <!-- 5-CARD CLUSTER (LEFT) -->
+          <div class="hud-cards-row">
+            <!-- 1. SCORE CARD -->
+            <div class="hud-card hud-card-score hud-score-badge" aria-label="Score">
+              <span class="hud-card-label">SCORE</span>
+              <span id="hud-score" class="hud-card-value">0</span>
+            </div>
+
+            <!-- 2. MODAK CARD -->
+            <div class="hud-card hud-card-modak hud-modak-badge" aria-label="Modaks Collected">
+              <img src="assets/icon_modak.png" alt="Modak" class="hud-card-icon">
+              <div class="hud-card-text">
+                <span class="hud-card-label">MODAK</span>
+                <span id="hud-modak-count" class="hud-card-value">0</span>
+              </div>
+            </div>
+
+            <!-- 3. LADOO CARD -->
+            <div class="hud-card hud-card-ladoo" id="hud-ladoo-badge" aria-label="Ladoos Collected">
+              <img src="assets/icon_ladoo.png" alt="Ladoo" class="hud-card-icon">
+              <div class="hud-card-text">
+                <span class="hud-card-label">LADOO</span>
+                <span id="hud-ladoo-count" class="hud-card-value">0</span>
+              </div>
+            </div>
+
+            <!-- 4. POWER CARD -->
+            <div class="hud-card hud-card-power" id="hud-power-badge" aria-label="Devotional Power">
+              <img src="assets/icon_lotus.png" alt="Power Lotus" class="hud-card-icon hud-lotus-icon">
+              <div class="hud-card-text">
+                <span class="hud-card-label">POWER</span>
+                <span id="hud-power-count" class="hud-card-value">0</span>
+              </div>
+            </div>
+
+            <!-- 5. LIVES CARD -->
+            <div class="hud-card hud-card-lives" id="hud-lives-badge" aria-label="Lives Remaining">
+              <span class="hud-card-label lives-label">LIVES</span>
+              <div class="hud-lives-row">
+                <img src="assets/icon_heart_big.png" alt="Heart" class="hud-card-icon hud-heart-big">
+                <span id="hud-lives-hearts" class="hud-lives-hearts" aria-hidden="true">
+                  <span class="heart-icon active">❤️</span>
+                  <span class="heart-icon active">❤️</span>
+                  <span class="heart-icon active">❤️</span>
+                </span>
+                <span id="hud-lives-count" class="hud-lives-num is-sr-only">3</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT ACTIONS & POWER PILL -->
+          <div class="hud-right-group">
+            <!-- DIVINE ATTRACTION CAPSULE -->
+            <div id="hud-effect-flower" class="hud-attraction-capsule" aria-label="Divine Attraction Active">
+              <div class="capsule-lotus-wrap">
+                <img src="assets/icon_lotus.png" alt="Divine Lotus" class="capsule-lotus-img">
+              </div>
+              <div class="capsule-info">
+                <span class="capsule-label">DIVINE ATTRACTION</span>
+                <div class="capsule-meter-row">
+                  <div class="flower-progress-track">
+                    <div id="hud-flower-progress" class="flower-progress-bar" style="width: 100%;"></div>
+                  </div>
+                  <span id="hud-flower-timer" class="capsule-time">5.4s</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CIRCULAR PAUSE BUTTON -->
+            <button type="button" class="hud-circle-pause-btn" id="hud-pause-btn" aria-label="Pause Game">
+              <span class="pause-glyph" aria-hidden="true">❚❚</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- UPPER RIGHT GUIDANCE TIP PLAQUE -->
+        <aside id="hud-tip-scroll" class="hud-tip-scroll" aria-label="Game Guidance Tip">
+          <div class="tip-scroll-frame">
+            <p class="tip-content">
+              Collect the Flower<br>
+              to attract all<br>
+              Modaks & Ladoos!
+            </p>
+            <div class="tip-filigree-divider" aria-hidden="true">
+              <span class="filigree-line"></span>
+              <span class="filigree-gem">✦</span>
+              <span class="filigree-line"></span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- BACKWARD COMPATIBILITY LAYER (All existing IDs retained with zero layout impact) -->
+        <div class="hud-compat-layer is-sr-only" aria-hidden="true">
+          <div id="hud-env-badge"><span id="hud-env-icon">🛕</span><span id="hud-env-name">Temple Courtyard</span></div>
+          <div id="hud-level-badge"><span id="hud-level-value">1</span></div>
+          <div id="hud-timer-badge"><span id="hud-timer-value">60</span></div>
+          <div id="hud-combo-badge"><span id="hud-combo-value">—</span></div>
+          <div id="hud-power-fill"></div>
+          <span id="hud-power-tier">Peaceful</span>
+          <div id="hud-effects-tray">
+            <div id="hud-effect-swift"><span id="hud-swift-timer">5s</span></div>
+            <div id="hud-effect-magnet"><span id="hud-magnet-timer">6s</span></div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ==========================================
+           LEVEL COMPLETE TRANSITION MODAL (STEP 8)
+           ========================================== -->
+      <div id="level-complete-modal" class="level-complete-modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="level-complete-title" aria-describedby="level-complete-desc">
+        <div class="modal-backdrop" aria-hidden="true"></div>
+        <div class="modal-card">
+          <div class="modal-garland" aria-hidden="true"></div>
+          <div class="modal-shlok">॥ शुभ लाभ ॥</div>
+          <h2 id="level-complete-title" class="modal-title">LEVEL 1 COMPLETE</h2>
+          <p id="level-complete-desc" class="modal-subtitle">Ganesh Ji accepts your offering with divine blessings</p>
+
+          <div class="level-complete-stats">
+            <div class="level-stat-box">
+              <div class="css-modak-icon modal-modak-icon" aria-hidden="true">
+                <span class="modak-point"></span>
+                <span class="modak-groove g-1"></span>
+                <span class="modak-groove g-2"></span>
+              </div>
+              <div class="level-stat-info">
+                <span class="stat-label">Modaks Collected</span>
+                <span id="level-complete-modaks" class="stat-value">10</span>
+              </div>
+            </div>
+
+            <div class="level-next-card">
+              <span class="next-label">Next:</span>
+              <span id="level-complete-next" class="next-level-name">Level 2</span>
+              <span id="level-complete-target-text" class="next-target-text">(Target: 15 Modaks)</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="btn-level-continue" class="btn-level-continue" aria-label="Continue to Next Level">
+              <span class="btn-symbol">🪔</span>
+              <span class="btn-text">CONTINUE</span>
+              <span class="btn-symbol">🪔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           GAME COMPLETE / MODAK SEVA COMPLETE MODAL (STEP 5 & 6)
+           ========================================== -->
+      <div id="game-over-modal" class="game-over-modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="game-over-title" aria-describedby="game-over-desc">
+        <div class="modal-backdrop" aria-hidden="true"></div>
+        <div class="modal-card">
+          <div class="modal-garland" aria-hidden="true"></div>
+          <div class="modal-shlok">॥ ॐ श्री गणेशाय नमः ॥</div>
+          <h2 id="game-over-title" class="modal-title">Your Modak Seva is Complete</h2>
+          <p id="game-over-desc" class="modal-subtitle">Ganesh Ji is pleased with your devotional offering!</p>
+
+          <div class="modal-stats-grid">
+            <div class="modal-stat-card">
+              <div class="css-modak-icon modal-modak-icon" aria-hidden="true">
+                <span class="modak-point"></span>
+                <span class="modak-groove g-1"></span>
+                <span class="modak-groove g-2"></span>
+              </div>
+              <span class="stat-label">Modaks Offered</span>
+              <span id="modal-final-modaks" class="stat-value">0</span>
+            </div>
+
+            <div class="modal-stat-card">
+              <span class="stat-sparkle-icon" aria-hidden="true">✨</span>
+              <span class="stat-label">Devotional Score</span>
+              <span id="modal-final-score" class="stat-value">0</span>
+            </div>
+
+            <div class="modal-stat-card">
+              <span class="stat-combo-icon" aria-hidden="true">🔥</span>
+              <span class="stat-label">Max Streak</span>
+              <span id="modal-final-combo" class="stat-value">×0</span>
+            </div>
+
+            <div class="modal-stat-card">
+              <div class="css-ladoo-icon modal-ladoo-icon" aria-hidden="true"></div>
+              <span class="stat-label">Ladoos Offered</span>
+              <span id="modal-final-ladoos" class="stat-value">0</span>
+            </div>
+
+            <div class="modal-stat-card">
+              <span class="stat-sparkle-icon" aria-hidden="true">⚜️</span>
+              <span class="stat-label">Devotional Power</span>
+              <span id="modal-final-power" class="stat-value">0</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="btn-play-again" class="btn-play-again" aria-label="Play Again and Offer More Modaks">
+              <span class="btn-symbol">🪔</span>
+              <span class="btn-text">PLAY AGAIN</span>
+              <span class="btn-symbol">🪔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           BOTTOM JOURNEY TIMELINE TRACK (EXACT INTERFACE ALIGNMENT)
+           ========================================== -->
+      <section id="realms-timeline-bar" class="realms-timeline-bar" aria-label="Divine Environments Journey Track">
+        <div class="timeline-cards-track">
+          <!-- 1. DAY -->
+          <div id="timeline-realm-0" class="timeline-realm-card is-active" aria-label="Day – Temple Courtyard">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_day.jpg" alt="Day – Temple Courtyard" class="timeline-thumb-img">
+            </div>
+            <span class="timeline-card-pill">Day – Temple Courtyard</span>
+          </div>
+
+          <span class="timeline-flow-arrow" aria-hidden="true">➔</span>
+
+          <!-- 2. EVENING -->
+          <div id="timeline-realm-1" class="timeline-realm-card" aria-label="Evening – Riverside">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_evening.jpg" alt="Evening – Riverside" class="timeline-thumb-img">
+            </div>
+            <span class="timeline-card-pill">Evening – Riverside</span>
+          </div>
+
+          <span class="timeline-flow-arrow" aria-hidden="true">➔</span>
+
+          <!-- 3. NIGHT -->
+          <div id="timeline-realm-2" class="timeline-realm-card" aria-label="Night – Festival Lights">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_night.jpg" alt="Night – Festival Lights" class="timeline-thumb-img">
+            </div>
+            <span class="timeline-card-pill">Night – Festival Lights</span>
+          </div>
+
+          <span class="timeline-flow-arrow" aria-hidden="true">➔</span>
+
+          <!-- 4. MONSOON -->
+          <div id="timeline-realm-3" class="timeline-realm-card" aria-label="Monsoon – Rainy Temple">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_monsoon.jpg" alt="Monsoon – Rainy Temple" class="timeline-thumb-img">
+            </div>
+            <span class="timeline-card-pill">Monsoon – Rainy Temple</span>
+          </div>
+
+          <span class="timeline-flow-arrow" aria-hidden="true">➔</span>
+
+          <!-- 5. SPRING -->
+          <div id="timeline-realm-4" class="timeline-realm-card" aria-label="Spring – Blossom Garden">
+            <div class="timeline-thumb-box">
+              <img src="assets/env_spring.jpg" alt="Spring – Blossom Garden" class="timeline-thumb-img">
+            </div>
+            <span class="timeline-card-pill">Spring – Blossom Garden</span>
+          </div>
+        </div>
+
+        <!-- FOOTER ROW: CENTER BANNER & DEVOTIONAL SALUTATION -->
+        <div class="timeline-sub-row">
+          <div class="timeline-center-banner">
+            <span class="banner-bracket-ornament">༺</span>
+            <span class="banner-headline-text">Experience New Divine Surroundings as You Play!</span>
+            <span class="banner-bracket-ornament">༻</span>
+          </div>
+          <div class="timeline-devotional-mantra">॥ श्री गणेशाय नमः ॥</div>
+        </div>
+      </section>
+
+      <!-- ENVIRONMENT STATUS BADGE (COMPATIBILITY) -->
+      <footer class="environment-status-badge is-sr-only" role="status" aria-live="polite">
+        <div class="status-inner">
+          <span class="status-icon">🪔</span>
+          <span class="status-text">Temple Courtyard • Dynamic Difficulty & Devotional Lives Active</span>
+          <span class="status-icon">🪔</span>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- GAME SCRIPT -->
+  <script src="js/game.js"></script>
+</body>
+</html>
