@@ -447,9 +447,12 @@
       };
       this.touchLeft = false;
       this.touchRight = false;
+      this.screenPointerActive = false;
+      this.screenPointerX = null;
 
       this.bindKeyboard();
       this.bindTouchControls();
+      this.bindScreenTouch();
     }
 
     bindKeyboard() {
@@ -488,17 +491,24 @@
           e.preventDefault();
           setTouchState(true);
           btn.classList.add('is-pressed');
+          try {
+            if (btn.setPointerCapture) btn.setPointerCapture(e.pointerId);
+          } catch (_) {}
         };
         const end = (e) => {
           e.preventDefault();
           setTouchState(false);
           btn.classList.remove('is-pressed');
+          try {
+            if (btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) {
+              btn.releasePointerCapture(e.pointerId);
+            }
+          } catch (_) {}
         };
 
         btn.addEventListener('pointerdown', start);
         btn.addEventListener('pointerup', end);
         btn.addEventListener('pointercancel', end);
-        btn.addEventListener('pointerleave', end);
       };
 
       if (btnLeft) bindButton(btnLeft, (val) => { this.touchLeft = val; });
@@ -517,7 +527,7 @@
         });
       }
 
-      // Prevent touch controls from sticking if released outside button
+      // Global safety release
       window.addEventListener('pointerup', () => {
         this.touchLeft = false;
         this.touchRight = false;
@@ -531,11 +541,70 @@
       });
     }
 
-    getHorizontalAxis() {
+    bindScreenTouch() {
+      const arena = document.getElementById('game-arena') || document.getElementById('game-viewport');
+      if (!arena) return;
+
+      let isDragging = false;
+
+      const handlePointer = (e) => {
+        if (e.target.closest('.touch-controls') || e.target.closest('.hud-overlay') || e.target.closest('.modal-card')) {
+          return;
+        }
+        const rect = arena.getBoundingClientRect();
+        if (rect.width <= 0) return;
+        const relativeX = (e.clientX - rect.left) / rect.width;
+        this.screenPointerX = Math.max(0, Math.min(1, relativeX));
+        this.screenPointerActive = true;
+      };
+
+      arena.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.touch-controls') || e.target.closest('.hud-overlay') || e.target.closest('.modal-card')) return;
+        isDragging = true;
+        handlePointer(e);
+        try {
+          if (arena.setPointerCapture) arena.setPointerCapture(e.pointerId);
+        } catch (_) {}
+      });
+
+      arena.addEventListener('pointermove', (e) => {
+        if (isDragging) {
+          handlePointer(e);
+        }
+      });
+
+      const endPointer = (e) => {
+        isDragging = false;
+        this.screenPointerActive = false;
+        this.screenPointerX = null;
+        try {
+          if (arena.hasPointerCapture && arena.hasPointerCapture(e.pointerId)) {
+            arena.releasePointerCapture(e.pointerId);
+          }
+        } catch (_) {}
+      };
+
+      arena.addEventListener('pointerup', endPointer);
+      arena.addEventListener('pointercancel', endPointer);
+    }
+
+    getHorizontalAxis(player = null) {
       let axis = 0;
       if (this.keys.left || this.touchLeft) axis -= 1;
       if (this.keys.right || this.touchRight) axis += 1;
-      return axis;
+
+      // Screen direct touch / drag steering
+      if (axis === 0 && this.screenPointerActive && player && this.screenPointerX !== null) {
+        const arenaW = player.arena ? player.arena.clientWidth : 800;
+        const targetX = this.screenPointerX * arenaW;
+        const playerCenterX = player.x + (player.width / 2);
+        const diff = targetX - playerCenterX;
+        if (Math.abs(diff) > 16) {
+          axis = diff > 0 ? 1 : -1;
+        }
+      }
+
+      return Math.max(-1, Math.min(1, axis));
     }
 
     reset() {
@@ -544,6 +613,8 @@
       this.touchLeft = false;
       this.touchRight = false;
       this.touchAction = false;
+      this.screenPointerActive = false;
+      this.screenPointerX = null;
 
       const btnLeft = document.getElementById('btn-touch-left');
       const btnRight = document.getElementById('btn-touch-right');
@@ -894,10 +965,27 @@
 
       const sweet = this.targetSweet;
       sweet.active = false;
+
+      if (this.modakManager && this.modakManager.modaks) {
+        const mIdx = this.modakManager.modaks.indexOf(sweet);
+        if (mIdx !== -1) {
+          this.modakManager.modaks.splice(mIdx, 1);
+        }
+      }
+      if (this.ladooManager && this.ladooManager.ladoos) {
+        const lIdx = this.ladooManager.ladoos.indexOf(sweet);
+        if (lIdx !== -1) {
+          this.ladooManager.ladoos.splice(lIdx, 1);
+        }
+      }
+
       if (sweet.element) {
         sweet.element.classList.add('is-collected');
         setTimeout(() => {
-          if (sweet && sweet.element) sweet.element.remove();
+          if (sweet) {
+            if (typeof sweet.destroy === 'function') sweet.destroy();
+            else if (sweet.element && sweet.element.remove) sweet.element.remove();
+          }
         }, 300);
       }
 
@@ -1320,59 +1408,59 @@
    */
   const ENVIRONMENTS = [
     {
-      id: 'day-temple',
-      bgUrl: 'assets/bg_day_temple.jpg',
+      id: 'temple-courtyard',
+      bgUrl: 'assets/bg_game_temple_courtyard.jpg',
       className: 'env-temple-courtyard',
-      name: 'Day – Temple Courtyard',
+      name: 'Temple Courtyard',
       minScore: 0,
       icon: '🛕',
       particleMode: 'dust',
-      toastTitle: 'DAY – TEMPLE COURTYARD',
+      toastTitle: 'TEMPLE COURTYARD',
       description: 'Sacred Daytime Temple Courtyard with Carved Stone Pillars'
     },
     {
-      id: 'evening-riverside',
-      bgUrl: 'assets/bg_evening_riverside.jpg',
-      className: 'env-lotus-lake',
-      name: 'Evening – Riverside',
-      minScore: 100,
-      icon: '🌅',
-      particleMode: 'dust',
-      toastTitle: 'EVENING – RIVERSIDE',
-      description: 'Sacred Evening River Ghat & Sunset Glow'
-    },
-    {
-      id: 'night-festival',
-      bgUrl: 'assets/bg_night_festival.jpg',
-      className: 'env-festival-night',
-      name: 'Night – Festival Lights',
-      minScore: 240,
-      icon: '🌙',
-      particleMode: 'starlight',
-      toastTitle: 'NIGHT – FESTIVAL LIGHTS',
-      description: 'Midnight Ghat with Glowing Diyas & Festival Illumination'
-    },
-    {
-      id: 'monsoon-temple',
-      bgUrl: 'assets/bg_monsoon_temple.jpg',
-      className: 'env-monsoon-temple',
-      name: 'Monsoon – Rainy Temple',
-      minScore: 420,
-      icon: '🌧️',
-      particleMode: 'rain',
-      toastTitle: 'MONSOON – RAINY TEMPLE',
-      description: 'Gentle Cooling Rain & Sacred Temple Sanctuary'
-    },
-    {
-      id: 'blossom-garden',
-      bgUrl: 'assets/bg_blossom_garden.jpg',
+      id: 'modak-orchard',
+      bgUrl: 'assets/bg_game_modak_orchard.jpg',
       className: 'env-blossom-garden',
-      name: 'Spring – Blossom Garden',
-      minScore: 650,
+      name: 'Modak Orchard',
+      minScore: 100,
       icon: '🌸',
       particleMode: 'petals',
-      toastTitle: 'SPRING – BLOSSOM GARDEN',
-      description: 'Sacred Spring Garden of Parijat & Rose Blossoms'
+      toastTitle: 'SACRED MODAK ORCHARD',
+      description: 'Sweet Blossom Orchard with Parijat & Modak Offering Trees'
+    },
+    {
+      id: 'mushak-meadow',
+      bgUrl: 'assets/bg_game_mushak_meadow.jpg',
+      className: 'env-lotus-lake',
+      name: 'Mushak Meadow',
+      minScore: 240,
+      icon: '🐁',
+      particleMode: 'dust',
+      toastTitle: 'MUSHAK MEADOW',
+      description: 'Lord Ganesha & Sacred Mouse Companion Devotional Meadow'
+    },
+    {
+      id: 'kailash-peaks',
+      bgUrl: 'assets/bg_game_kailash_peaks.jpg',
+      className: 'env-temple-courtyard',
+      name: 'Kailash Peaks',
+      minScore: 420,
+      icon: '🏔️',
+      particleMode: 'dust',
+      toastTitle: 'MOUNT KAILASH ABODE',
+      description: 'Sacred Abode of Lord Shiva, Maa Parvati & Ganesha'
+    },
+    {
+      id: 'celestial-realm',
+      bgUrl: 'assets/bg_game_celestial_realm.jpg',
+      className: 'env-blossom-garden',
+      name: 'Celestial Ananda Loka',
+      minScore: 650,
+      icon: '✨',
+      particleMode: 'dust',
+      toastTitle: 'CELESTIAL ANANDA LOKA',
+      description: 'Heavenly Golden Realm of Eternal Modak Blessings'
     }
   ];
 
@@ -2082,6 +2170,7 @@
           )
         )
       );
+      this.active = true;
       this.element = this.createElement();
       this.render();
     }
@@ -2092,27 +2181,79 @@
       el.dataset.id = String(this.id);
       el.style.width = `${this.width.toFixed(1)}px`;
       el.style.height = `${this.height.toFixed(1)}px`;
+
+      const typeConfigs = {
+        normal: {
+          s1: '#ffffff', s2: '#fffef0', s3: '#fef08a', s4: '#eab308', s5: '#ca8a04',
+          p1: '#ffffff', p2: '#fff9c4', p3: '#facc15',
+          cr: 'rgba(180, 83, 9, 0.45)', ap: '#fef08a', ks: '#dc2626'
+        },
+        golden: {
+          s1: '#ffffff', s2: '#fef08a', s3: '#facc15', s4: '#d97706', s5: '#92400e',
+          p1: '#fffbeb', p2: '#fef08a', p3: '#f59e0b',
+          cr: 'rgba(120, 53, 15, 0.55)', ap: '#fef9c3', ks: '#ea580c'
+        },
+        blessed: {
+          s1: '#ffffff', s2: '#ffe4e6', s3: '#fb7185', s4: '#e11d48', s5: '#881337',
+          p1: '#fff1f2', p2: '#fecdd3', p3: '#f43f5e',
+          cr: 'rgba(76, 5, 25, 0.5)', ap: '#fda4af', ks: '#ffffff'
+        },
+        swift: {
+          s1: '#ffffff', s2: '#d1fae5', s3: '#34d399', s4: '#059669', s5: '#064e3b',
+          p1: '#f0fdf4', p2: '#a7f3d0', p3: '#10b981',
+          cr: 'rgba(2, 44, 34, 0.5)', ap: '#a7f3d0', ks: '#ffd700'
+        },
+        magnet: {
+          s1: '#ffffff', s2: '#e0f2fe', s3: '#38bdf8', s4: '#0284c7', s5: '#075985',
+          p1: '#f0f9ff', p2: '#bae6fd', p3: '#0ea5e9',
+          cr: 'rgba(8, 47, 73, 0.5)', ap: '#7dd3fc', ks: '#ffd700'
+        }
+      };
+      const c = typeConfigs[this.type] || typeConfigs.normal;
+      const uid = this.id;
+
       el.innerHTML = `
         <div class="modak-halo"></div>
         <div class="modak-sparkle-dot"></div>
-        <div class="modak-shape">
-          <div class="modak-apex"></div>
-          <div class="modak-pleats-wrap">
-            <div class="modak-pleat-cone"></div>
-            <div class="modak-pleat p-1"></div>
-            <div class="modak-pleat p-2"></div>
-            <div class="modak-pleat p-3"></div>
-            <div class="modak-pleat p-4"></div>
-            <div class="modak-pleat p-5"></div>
-            <div class="modak-pleat p-6"></div>
-            <div class="modak-pleat p-7"></div>
-          </div>
-          <div class="modak-body">
-            <div class="modak-body-highlight"></div>
-            <div class="modak-body-shadow"></div>
-          </div>
-          <div class="modak-base"></div>
-        </div>
+        <svg viewBox="0 0 64 74" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" class="modak-real-svg">
+          <defs>
+            <radialGradient id="mShell_${uid}" cx="38%" cy="44%" r="58%">
+              <stop offset="0%" stop-color="${c.s1}"/>
+              <stop offset="25%" stop-color="${c.s2}"/>
+              <stop offset="60%" stop-color="${c.s3}"/>
+              <stop offset="85%" stop-color="${c.s4}"/>
+              <stop offset="100%" stop-color="${c.s5}"/>
+            </radialGradient>
+            <linearGradient id="mPleatC_${uid}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${c.p1}"/>
+              <stop offset="50%" stop-color="${c.p2}"/>
+              <stop offset="100%" stop-color="${c.p3}"/>
+            </linearGradient>
+            <linearGradient id="mPleatSide_${uid}" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="${c.p1}"/>
+              <stop offset="60%" stop-color="${c.p2}"/>
+              <stop offset="100%" stop-color="${c.p3}"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="32" cy="70" rx="19" ry="3.5" fill="rgba(0,0,0,0.25)"/>
+          <path d="M 32,5 C 36,9 43,24 50,38 C 55,48 56,58 49,66 C 44,71 38,72 32,72 C 26,72 20,71 15,66 C 8,58 9,48 14,38 C 21,24 28,9 32,5 Z" fill="url(#mShell_${uid})"/>
+          <path d="M 32,6 C 33.5,20 35,44 34,69 C 32.5,70 31.5,70 30,69 C 29,44 30.5,20 32,6 Z" fill="url(#mPleatC_${uid})" opacity="0.9"/>
+          <path d="M 32,7 C 28,20 23,43 22,66 C 24,67.5 26,68 28,68.5 C 29,44 31.5,21 32,7 Z" fill="url(#mPleatSide_${uid})" opacity="0.85"/>
+          <path d="M 32,7 C 36,20 41,43 42,66 C 40,67.5 38,68 36,68.5 C 35,44 32.5,21 32,7 Z" fill="url(#mPleatSide_${uid})" opacity="0.85"/>
+          <path d="M 32,8 C 24,19 16,36 14,52 C 13,60 16,65 19,67 C 17,63 17,50 21,38 C 25,26 30,14 32,8 Z" fill="url(#mPleatSide_${uid})" opacity="0.75"/>
+          <path d="M 32,8 C 40,19 48,36 50,52 C 51,60 48,65 45,67 C 47,63 47,50 43,38 C 39,26 34,14 32,8 Z" fill="url(#mPleatSide_${uid})" opacity="0.75"/>
+          <path d="M 32,9 Q 29,35 25,65" stroke="${c.cr}" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+          <path d="M 32,9 Q 35,35 39,65" stroke="${c.cr}" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+          <path d="M 32,10 Q 22,32 17,54" stroke="${c.cr}" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+          <path d="M 32,10 Q 42,32 47,54" stroke="${c.cr}" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+          <path d="M 32,12 C 34,23 36,38 35,48" stroke="rgba(255,255,255,0.7)" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          <ellipse cx="27" cy="46" rx="3.5" ry="7" fill="rgba(255,255,255,0.35)" transform="rotate(-15 27 46)"/>
+          <path d="M 32,3 C 33.5,5 34,7 32,9 C 30,7 30.5,5 32,3 Z" fill="${c.ap}"/>
+          <path d="M 32,2 Q 33.5,4 32.5,7" stroke="${c.ks}" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          <circle cx="32" cy="7.5" r="1.1" fill="${c.ks}"/>
+          <circle cx="28" cy="38" r="0.8" fill="${c.ks}" opacity="0.75"/>
+          <circle cx="36" cy="44" r="0.7" fill="${c.ks}" opacity="0.65"/>
+        </svg>
       `;
       return el;
     }
@@ -2476,6 +2617,7 @@
       // Update active modaks
       for (let i = this.modaks.length - 1; i >= 0; i--) {
         const modak = this.modaks[i];
+        if (!modak || !modak.active) continue;
         modak.y += modak.speed * dt;
         modak.render();
 
@@ -2630,6 +2772,7 @@
       this.speed = speed;
       this.points = LADOO_CONFIG.points;
       this.power = LADOO_CONFIG.power;
+      this.active = true;
       this.element = this.createElement();
       this.render();
     }
@@ -2715,6 +2858,7 @@
 
       for (let i = this.ladoos.length - 1; i >= 0; i--) {
         const ladoo = this.ladoos[i];
+        if (!ladoo || !ladoo.active) continue;
         ladoo.y += ladoo.speed * dt;
         ladoo.render();
 
@@ -3445,25 +3589,32 @@
         this.pauseBtn.addEventListener('click', this.handlePauseToggle);
       }
 
-      // Play Again button
+      // Play Again button (Click & touch support)
       if (this.btnPlayAgain) {
         this.btnPlayAgain.addEventListener('click', this.restartGame);
+        this.btnPlayAgain.addEventListener('pointerup', this.restartGame);
       }
 
-      // Level Continue button
+      // Level Continue button (Click & touch support)
       if (this.btnLevelContinue) {
         this.btnLevelContinue.addEventListener('click', this.continueToNextLevel);
+        this.btnLevelContinue.addEventListener('pointerup', this.continueToNextLevel);
       }
 
       // Listeners
       window.addEventListener('resize', this.handleResize, { passive: true });
       document.addEventListener('visibilitychange', this.handleVisibilityChange);
 
-      // Keyboard shortcut for Level Continue (Enter or Space)
+      // Keyboard shortcut for Level Continue & Play Again (Enter or Space)
       window.addEventListener('keydown', (e) => {
-        if ((e.code === 'Enter' || e.code === 'Space') && this.state === GameState.LEVEL_TRANSITION) {
-          e.preventDefault();
-          this.continueToNextLevel();
+        if (e.code === 'Enter' || e.code === 'Space') {
+          if (this.state === GameState.LEVEL_TRANSITION) {
+            e.preventDefault();
+            this.continueToNextLevel();
+          } else if (this.state === GameState.GAME_OVER) {
+            e.preventDefault();
+            this.restartGame();
+          }
         }
       });
 
@@ -3540,7 +3691,17 @@
     }
 
     continueToNextLevel() {
+      // If called when in GAME_OVER, treat as restart so player can seamlessly continue!
+      if (this.state === GameState.GAME_OVER) {
+        this.restartGame();
+        return;
+      }
       if (this.state !== GameState.LEVEL_TRANSITION) return;
+
+      // Blur button to avoid stuck focus trapping keyboard input
+      if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
 
       // Hide transition modal
       if (this.levelCompleteModal) {
@@ -3572,6 +3733,11 @@
 
       if (this.player) {
         this.player.recalculateBounds();
+        this.player.stop();
+      }
+
+      if (this.inputManager) {
+        this.inputManager.reset();
       }
 
       // Resume game
@@ -3772,8 +3938,9 @@
       this.gameLoopId = requestAnimationFrame(this.gameLoop);
 
       if (this.state === GameState.RUNNING || this.state === GameState.READY) {
-        // Delta time clamped to 0.05s (20 FPS floor) to prevent physics tunneling
-        const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
+        // Delta time safely clamped with floor to guarantee positive progression and prevent hangs
+        const rawDt = (timestamp - this.lastTime) / 1000;
+        const dt = Math.max(0.001, Math.min(isNaN(rawDt) || rawDt <= 0 ? 0.016 : rawDt, 0.05));
         this.lastTime = timestamp;
 
         if (this.timerManager) {
@@ -3799,7 +3966,7 @@
         if (this.state === GameState.GAME_OVER || this.state === GameState.LEVEL_TRANSITION) return;
 
         if (this.player && this.inputManager) {
-          const axisX = this.inputManager.getHorizontalAxis();
+          const axisX = this.inputManager.getHorizontalAxis(this.player);
           const speedMultiplier = this.specialEffectManager && this.specialEffectManager.isSwiftActive()
             ? SPECIAL_MODAK_CONFIG.swiftMovementMultiplier
             : 1.0;

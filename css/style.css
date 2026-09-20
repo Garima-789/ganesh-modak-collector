@@ -4374,7 +4374,7 @@ html, body {
 /* Frosted Glass Touch Controls */
 .touch-controls {
   position: absolute;
-  bottom: clamp(92px, 14vh, 122px);
+  bottom: clamp(16px, 3vh, 32px);
   left: 20px;
   right: 20px;
   display: flex;
@@ -4437,8 +4437,8 @@ html, body {
   position: absolute;
   bottom: clamp(10px, 2vh, 22px);
   left: 0;
-  width: 50px;
-  height: 42px;
+  width: 60px;
+  height: 50px;
   z-index: 22;
   pointer-events: none;
   transform-origin: bottom center;
@@ -4449,39 +4449,85 @@ html, body {
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.35) 0%, rgba(255, 179, 0, 0.15) 50%, transparent 75%);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(255, 179, 0, 0.15) 50%, transparent 75%);
   filter: blur(2px);
   animation: mushakAuraPulse 2s ease-in-out infinite alternate;
 }
 
 @keyframes mushakAuraPulse {
   0% { transform: scale(0.9); opacity: 0.6; }
-  100% { transform: scale(1.15); opacity: 0.95; }
+  100% { transform: scale(1.18); opacity: 0.95; }
 }
 
 .mushak-sprite {
   position: relative;
   width: 100%;
   height: 100%;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
+}
+
+.mushak-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mushak-companion.is-scampering .mushak-anim-tail {
+  animation: mushakTailWag 0.2s ease-in-out infinite alternate;
 }
 
 .mushak-companion.is-scampering .mushak-sprite {
-  animation: mushakScamper 0.28s ease-in-out infinite alternate;
+  animation: mushakScamper 0.25s ease-in-out infinite alternate;
 }
 
 .mushak-companion.is-dashing .mushak-sprite {
-  animation: mushakDash 0.15s ease-in-out infinite alternate;
+  animation: mushakDash 0.14s ease-in-out infinite alternate;
+}
+
+@keyframes mushakTailWag {
+  0% { transform: rotate(-8deg); transform-origin: 22px 60px; }
+  100% { transform: rotate(12deg); transform-origin: 22px 60px; }
 }
 
 @keyframes mushakScamper {
   0% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-5px) rotate(4deg); }
+  50% { transform: translateY(-4px) rotate(3deg); }
   100% { transform: translateY(0) rotate(-2deg); }
 }
 
 @keyframes mushakDash {
-  0% { transform: translateY(-2px) scaleX(1.1); }
-  100% { transform: translateY(2px) scaleX(0.95); }
+  0% { transform: translateY(-2px) scaleX(1.12); }
+  100% { transform: translateY(2px) scaleX(0.94); }
+}
+
+/* Real Modak Vector Shape & Luster Animation */
+.modak-real-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+  animation: modakRealFloat 2s ease-in-out infinite alternate;
+}
+
+@keyframes modakRealFloat {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-2px) rotate(1.5deg); }
+}
+
+.modak-golden .modak-real-svg {
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+.modak-blessed .modak-real-svg {
+  filter: drop-shadow(0 0 14px rgba(244, 63, 94, 0.85)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+.modak-swift .modak-real-svg {
+  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.8)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+.modak-magnet .modak-real-svg {
+  filter: drop-shadow(0 0 12px rgba(14, 165, 233, 0.85)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
 }
 
 /* Mouse Body Parts */
@@ -4834,57 +4880,17 @@ html, body {
     display: none; /* Hide tip scroll on compact mobile to maximize playing arena */
   }
   .touch-controls {
-    bottom: clamp(76px, 11.5vh, 98px);
-    left: 8px;
-    right: 8px;
+    bottom: clamp(12px, 2.4vh, 22px);
+    left: 10px;
+    right: 10px;
+    z-index: 75;
   }
   .touch-glass-btn {
-    width: 52px;
-    height: 52px;
+    width: 54px;
+    height: 54px;
   }
   .touch-triangle-arrow {
-    font-size: 18px;
-  }
-  .realms-timeline-bar {
-    bottom: 3px;
-    left: 3px;
-    right: 3px;
-    z-index: 60;
-  }
-  .timeline-cards-track {
-    gap: 3px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    justify-content: center;
-    padding-bottom: 2px;
-  }
-  .timeline-cards-track::-webkit-scrollbar {
-    display: none;
-  }
-  .timeline-track-arrow {
-    font-size: 10px;
-    margin: 0 1px;
-    opacity: 0.75;
-  }
-  .timeline-thumb-box {
-    width: clamp(52px, 15.5vw, 66px);
-    height: clamp(32px, 9.2vw, 38px);
-    border-radius: 4px;
-  }
-  .timeline-card-pill {
-    font-size: 6.8px;
-    padding: 1px 3px;
-    max-width: 62px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .timeline-devotional-mantra {
-    display: none; /* Keep clean centered banner on compact mobile */
-  }
-  .timeline-shlok {
-    font-size: 10.5px;
-    margin-top: 2px;
+    font-size: 20px;
   }
 }
 

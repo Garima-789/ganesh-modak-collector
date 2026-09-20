@@ -19,8 +19,8 @@
            LAYER 0: 10 SACRED DIVINE BACKGROUNDS (DUAL-LAYER CROSSFADE)
            ========================================== -->
       <div id="divine-background-wrapper" class="divine-background-wrapper" aria-hidden="true">
-        <div id="divine-bg-layer-a" class="divine-bg-layer is-active" style="background-image: url('assets/bg_day_temple.jpg');"></div>
-        <div id="divine-bg-layer-b" class="divine-bg-layer" style="background-image: url('assets/bg_evening_riverside.jpg');"></div>
+        <div id="divine-bg-layer-a" class="divine-bg-layer is-active" style="background-image: url('assets/bg_game_temple_courtyard.jpg');"></div>
+        <div id="divine-bg-layer-b" class="divine-bg-layer" style="background-image: url('assets/bg_game_modak_orchard.jpg');"></div>
         <div class="divine-bg-overlay"></div>
       </div>
 
@@ -604,14 +604,81 @@
         <div id="mushak-companion" class="mushak-companion" role="img" aria-label="Mushak Ji - Divine Helper Companion">
           <div class="mushak-aura" aria-hidden="true"></div>
           <div class="mushak-sprite">
-            <span class="mushak-tail"></span>
-            <span class="mushak-body"></span>
-            <span class="mushak-ear ear-left"></span>
-            <span class="mushak-ear ear-right"></span>
-            <span class="mushak-snout"></span>
-            <span class="mushak-eye"></span>
-            <span class="mushak-dhoti"></span>
-            <span class="mushak-sweet">🥟</span>
+            <svg viewBox="0 0 100 85" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" class="mushak-svg">
+              <defs>
+                <radialGradient id="mushakFurGrad" cx="40%" cy="40%" r="60%">
+                  <stop offset="0%" stop-color="#ffffff"/>
+                  <stop offset="45%" stop-color="#f5ebe0"/>
+                  <stop offset="80%" stop-color="#cbb59d"/>
+                  <stop offset="100%" stop-color="#8c6d4f"/>
+                </radialGradient>
+                <radialGradient id="mushakEarGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#fce7f3"/>
+                  <stop offset="70%" stop-color="#f472b6"/>
+                  <stop offset="100%" stop-color="#db2777"/>
+                </radialGradient>
+                <linearGradient id="mushakDhotiGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#fef08a"/>
+                  <stop offset="40%" stop-color="#facc15"/>
+                  <stop offset="100%" stop-color="#ea580c"/>
+                </linearGradient>
+                <filter id="mushakDropShad" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.35)"/>
+                </filter>
+              </defs>
+
+              <!-- Swishing Tail with Golden Bell -->
+              <path class="mushak-anim-tail" d="M 22,60 C 10,64 2,50 6,36 C 9,26 17,25 18,29 C 19,33 16,42 12,46" 
+                    stroke="#a8896c" stroke-width="4.2" stroke-linecap="round" fill="none"/>
+              <circle class="mushak-anim-bell" cx="18" cy="29" r="3.5" fill="#ffd700" stroke="#b45309" stroke-width="0.8"/>
+
+              <!-- Back Paw -->
+              <ellipse class="mushak-back-paw" cx="28" cy="74" rx="10" ry="5.5" fill="#96775b"/>
+
+              <!-- Chubby Mouse Body -->
+              <ellipse cx="48" cy="56" rx="24" ry="19" fill="url(#mushakFurGrad)" filter="url(#mushakDropShad)"/>
+
+              <!-- Sacred Saffron Dhoti & Belt -->
+              <path d="M 34,54 C 36,46 54,46 60,54 C 64,64 60,73 48,74 C 36,73 32,64 34,54 Z" fill="url(#mushakDhotiGrad)"/>
+              <path d="M 34,54 C 44,51 54,51 60,54" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="47" cy="53" r="2.2" fill="#e11d48"/>
+
+              <!-- Left Ear -->
+              <ellipse cx="60" cy="20" rx="9" ry="12" fill="#96775b" transform="rotate(-15 60 20)"/>
+              <ellipse cx="60" cy="21" rx="6" ry="8.5" fill="url(#mushakEarGrad)" transform="rotate(-15 60 21)"/>
+
+              <!-- Cute Head -->
+              <ellipse cx="68" cy="38" rx="17" ry="15" fill="url(#mushakFurGrad)"/>
+
+              <!-- Right Ear -->
+              <ellipse cx="73" cy="20" rx="9.5" ry="12.5" fill="#bfa58c" transform="rotate(12 73 20)"/>
+              <ellipse cx="73" cy="21" rx="6.5" ry="9" fill="url(#mushakEarGrad)" transform="rotate(12 73 21)"/>
+
+              <!-- Snout & Pink Nose -->
+              <path d="M 76,40 C 86,42 88,47 84,50 C 78,52 74,48 76,40 Z" fill="#edd9c2"/>
+              <ellipse cx="85" cy="46" rx="2.5" ry="2" fill="#f43f5e"/>
+
+              <!-- Whiskers -->
+              <path d="M 80,47 L 94,44 M 80,50 L 93,51 M 78,52 L 91,56" stroke="#8a6f52" stroke-width="0.9" stroke-linecap="round"/>
+
+              <!-- Big Sparkling Black Eye with Gleams -->
+              <ellipse cx="72" cy="35" rx="4.5" ry="5.5" fill="#180e07"/>
+              <circle cx="70.5" cy="33" r="2" fill="#ffffff"/>
+              <circle cx="73.5" cy="37" r="0.9" fill="#ffffff"/>
+
+              <!-- Sacred Tilak on Forehead -->
+              <line x1="68" y1="28" x2="68" y2="34" stroke="#dc2626" stroke-width="1.2" stroke-linecap="round"/>
+              <circle cx="68" cy="35" r="0.9" fill="#facc15"/>
+
+              <!-- Front Paws holding cute tiny Modak -->
+              <ellipse cx="66" cy="64" rx="5" ry="3.5" fill="#fbcfe8" transform="rotate(-20 66 64)"/>
+              <!-- Miniature Golden Modak in Paws -->
+              <path d="M 68,56 C 71,59 73,63 70,66 C 67,69 64,68 64,64 C 64,60 67,57 68,56 Z" fill="#f59e0b" stroke="#ffd700" stroke-width="0.7"/>
+              <ellipse cx="69" cy="66" rx="4.5" ry="3" fill="#fbcfe8" transform="rotate(15 69 66)"/>
+
+              <!-- Front Foot -->
+              <ellipse class="mushak-front-paw" cx="58" cy="75" rx="7" ry="4" fill="#edd9c2"/>
+            </svg>
           </div>
           <div id="mushak-speech" class="mushak-speech is-hidden">🐁 Mushak Seva!</div>
         </div>
@@ -868,77 +935,6 @@
           </div>
         </div>
       </div>
-
-      <!-- ==========================================
-           BOTTOM JOURNEY TIMELINE TRACK (5 SACRED SURROUNDINGS)
-           MATCHING REFERENCE MOCK-UP
-           ========================================== -->
-      <nav id="realms-timeline-bar" class="realms-timeline-bar" aria-label="Sacred Environments Journey">
-        <div class="timeline-cards-track">
-          <!-- Realm 1: Day - Temple Courtyard -->
-          <div class="timeline-realm-card is-active" data-env-index="0" role="button" tabindex="0" aria-label="Switch to Day - Temple Courtyard">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_day.jpg" alt="Day Temple Courtyard" class="timeline-thumb-img" draggable="false">
-              <div class="timeline-thumb-overlay"></div>
-            </div>
-            <div class="timeline-card-pill">Day – Temple Courtyard</div>
-          </div>
-
-          <span class="timeline-track-arrow" aria-hidden="true">➔</span>
-
-          <!-- Realm 2: Evening - Riverside -->
-          <div class="timeline-realm-card" data-env-index="1" role="button" tabindex="0" aria-label="Switch to Evening - Riverside">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_evening.jpg" alt="Evening Riverside" class="timeline-thumb-img" draggable="false">
-              <div class="timeline-thumb-overlay"></div>
-            </div>
-            <div class="timeline-card-pill">Evening – Riverside</div>
-          </div>
-
-          <span class="timeline-track-arrow" aria-hidden="true">➔</span>
-
-          <!-- Realm 3: Night - Festival Lights -->
-          <div class="timeline-realm-card" data-env-index="2" role="button" tabindex="0" aria-label="Switch to Night - Festival Lights">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_night.jpg" alt="Night Festival Lights" class="timeline-thumb-img" draggable="false">
-              <div class="timeline-thumb-overlay"></div>
-            </div>
-            <div class="timeline-card-pill">Night – Festival Lights</div>
-          </div>
-
-          <span class="timeline-track-arrow" aria-hidden="true">➔</span>
-
-          <!-- Realm 4: Monsoon - Rainy Temple -->
-          <div class="timeline-realm-card" data-env-index="3" role="button" tabindex="0" aria-label="Switch to Monsoon - Rainy Temple">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_monsoon.jpg" alt="Monsoon Rainy Temple" class="timeline-thumb-img" draggable="false">
-              <div class="timeline-thumb-overlay"></div>
-            </div>
-            <div class="timeline-card-pill">Monsoon – Rainy Temple</div>
-          </div>
-
-          <span class="timeline-track-arrow" aria-hidden="true">➔</span>
-
-          <!-- Realm 5: Spring - Blossom Garden -->
-          <div class="timeline-realm-card" data-env-index="4" role="button" tabindex="0" aria-label="Switch to Spring - Blossom Garden">
-            <div class="timeline-thumb-box">
-              <img src="assets/env_spring.jpg" alt="Spring Blossom Garden" class="timeline-thumb-img" draggable="false">
-              <div class="timeline-thumb-overlay"></div>
-            </div>
-            <div class="timeline-card-pill">Spring – Blossom Garden</div>
-          </div>
-        </div>
-
-        <!-- Devotional Bottom Banner -->
-        <div class="timeline-footer-row">
-          <div class="timeline-devotional-mantra">
-            <span class="mantra-sparkle" aria-hidden="true">✨</span>
-            <span>Experience New Divine Surroundings as You Play!</span>
-            <span class="mantra-sparkle" aria-hidden="true">✨</span>
-          </div>
-          <div class="timeline-shlok" aria-hidden="true">॥ श्री गणेशाय नमः ॥</div>
-        </div>
-      </nav>
 
       <!-- ENVIRONMENT STATUS BADGE (COMPATIBILITY) -->
       <footer class="environment-status-badge is-sr-only" role="status" aria-live="polite">
