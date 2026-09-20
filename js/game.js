@@ -447,12 +447,25 @@
       };
       this.touchLeft = false;
       this.touchRight = false;
+      this.touchAction = false;
+      this.screenLeft = false;
+      this.screenRight = false;
       this.screenPointerActive = false;
       this.screenPointerX = null;
+      this.tapPulseLeftUntil = 0;
+      this.tapPulseRightUntil = 0;
 
       this.bindKeyboard();
       this.bindTouchControls();
       this.bindScreenTouch();
+    }
+
+    pulseLeft(durationMs = 240) {
+      this.tapPulseLeftUntil = Math.max(this.tapPulseLeftUntil, performance.now() + durationMs);
+    }
+
+    pulseRight(durationMs = 240) {
+      this.tapPulseRightUntil = Math.max(this.tapPulseRightUntil, performance.now() + durationMs);
     }
 
     bindKeyboard() {
@@ -485,80 +498,81 @@
       const btnRight = document.getElementById('btn-touch-right');
       const btnAction = document.getElementById('btn-touch-action');
 
-      const bindButton = (btn, setTouchState) => {
+      const bindButton = (btn, isLeft, isRight, isAction = false) => {
         if (!btn) return;
-        let isDown = false;
+        let pressStartTime = 0;
+        let activePointerId = null;
 
-        const handleStart = (e) => {
+        const onDown = (e) => {
           if (e && e.cancelable) e.preventDefault();
-          if (isDown) return;
-          isDown = true;
-          setTouchState(true);
+          pressStartTime = performance.now();
+          if (e && e.pointerId !== undefined) {
+            activePointerId = e.pointerId;
+            try {
+              if (btn.setPointerCapture) btn.setPointerCapture(e.pointerId);
+            } catch (_) {}
+          }
           btn.classList.add('is-pressed');
-          try {
-            if (e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId);
-          } catch (_) {}
-        };
-
-        const handleEnd = (e) => {
-          if (e && e.cancelable) e.preventDefault();
-          if (!isDown) return;
-          isDown = false;
-          setTouchState(false);
-          btn.classList.remove('is-pressed');
-          try {
-            if (e.pointerId && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) {
-              btn.releasePointerCapture(e.pointerId);
-            }
-          } catch (_) {}
-        };
-
-        // Pointer Events (Modern mobile and desktop)
-        btn.addEventListener('pointerdown', handleStart);
-        btn.addEventListener('pointerup', handleEnd);
-        btn.addEventListener('pointercancel', handleEnd);
-
-        // Touch Events fallback with passive: false for iOS Safari & Android WebViews
-        btn.addEventListener('touchstart', handleStart, { passive: false });
-        btn.addEventListener('touchend', handleEnd, { passive: false });
-        btn.addEventListener('touchcancel', handleEnd, { passive: false });
-
-        // Mouse Events fallback
-        btn.addEventListener('mousedown', handleStart);
-        btn.addEventListener('mouseup', handleEnd);
-        btn.addEventListener('mouseleave', handleEnd);
-      };
-
-      if (btnLeft) bindButton(btnLeft, (val) => { this.touchLeft = val; });
-      if (btnRight) bindButton(btnRight, (val) => { this.touchRight = val; });
-      if (btnAction) {
-        bindButton(btnAction, (val) => {
-          this.touchAction = val;
-          if (val) {
-            // Devotional prayer aura burst on action button tap
+          if (isLeft) {
+            this.touchLeft = true;
+            this.pulseLeft(240);
+          }
+          if (isRight) {
+            this.touchRight = true;
+            this.pulseRight(240);
+          }
+          if (isAction) {
+            this.touchAction = true;
             const playerEl = document.getElementById('ganesh-player');
             if (playerEl) {
               playerEl.classList.add('is-celebrating');
               setTimeout(() => { playerEl.classList.remove('is-celebrating'); }, 400);
             }
           }
-        });
-      }
+        };
 
-      // Global safety release
-      const globalRelease = () => {
-        this.touchLeft = false;
-        this.touchRight = false;
-        this.touchAction = false;
-        if (btnLeft) btnLeft.classList.remove('is-pressed');
-        if (btnRight) btnRight.classList.remove('is-pressed');
-        if (btnAction) btnAction.classList.remove('is-pressed');
+        const onUp = (e) => {
+          if (e && e.cancelable) e.preventDefault();
+          const pressDuration = performance.now() - pressStartTime;
+          if (pressDuration < 160) {
+            if (isLeft) this.pulseLeft(240);
+            if (isRight) this.pulseRight(240);
+          }
+          if (isLeft) this.touchLeft = false;
+          if (isRight) this.touchRight = false;
+          if (isAction) this.touchAction = false;
+          btn.classList.remove('is-pressed');
+          if (activePointerId !== null) {
+            try {
+              if (btn.hasPointerCapture && btn.hasPointerCapture(activePointerId)) {
+                btn.releasePointerCapture(activePointerId);
+              }
+            } catch (_) {}
+            activePointerId = null;
+          }
+        };
+
+        // Modern Pointer Events
+        btn.addEventListener('pointerdown', onDown);
+        btn.addEventListener('pointerup', onUp);
+        btn.addEventListener('pointercancel', onUp);
+
+        // Touch Events fallback for iOS Safari and Android WebViews
+        btn.addEventListener('touchstart', onDown, { passive: false });
+        btn.addEventListener('touchend', onUp, { passive: false });
+        btn.addEventListener('touchcancel', onUp, { passive: false });
+
+        // Mouse Events fallback (no mouseleave to prevent premature cutoff on finger twitch)
+        btn.addEventListener('mousedown', onDown);
+        btn.addEventListener('mouseup', onUp);
       };
 
-      window.addEventListener('pointerup', globalRelease);
-      window.addEventListener('touchend', globalRelease);
-      window.addEventListener('pointercancel', () => this.reset());
-      window.addEventListener('touchcancel', () => this.reset());
+      if (btnLeft) bindButton(btnLeft, true, false);
+      if (btnRight) bindButton(btnRight, false, true);
+      if (btnAction) bindButton(btnAction, false, false, true);
+
+      // Window blur safety
+      window.addEventListener('blur', () => this.reset());
     }
 
     bindScreenTouch() {
@@ -567,49 +581,67 @@
                       document.getElementById('game-viewport');
       if (!surface) return;
 
-      let isInteracting = false;
+      let touchStartTime = 0;
 
-      const getCoordsFromEvent = (e) => {
-        if (e.touches && e.touches.length > 0) {
-          return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+      const evaluateTouch = (clientX, clientY) => {
+        const rect = surface.getBoundingClientRect();
+        if (rect.width <= 0) return;
+        const relativeX = (clientX - rect.left) / rect.width;
+        this.screenPointerX = Math.max(0, Math.min(1, relativeX));
+        this.screenPointerActive = true;
+
+        // Dedicated Responsive Touch Running Zones:
+        // Left 48% of screen -> Ganesh Ji runs LEFT continuously
+        // Right 48% of screen -> Ganesh Ji runs RIGHT continuously
+        if (relativeX < 0.48) {
+          this.screenLeft = true;
+          this.screenRight = false;
+        } else if (relativeX > 0.52) {
+          this.screenRight = true;
+          this.screenLeft = false;
+        } else {
+          this.screenLeft = false;
+          this.screenRight = false;
         }
-        return { clientX: e.clientX, clientY: e.clientY };
       };
 
-      const handleStartOrMove = (e) => {
+      const onStart = (e) => {
         if (e.target.closest('.touch-controls') || e.target.closest('.hud-overlay') || e.target.closest('.modal-card') || e.target.closest('.hud-circle-pause-btn')) {
           return;
         }
         if (e.cancelable) e.preventDefault();
+        touchStartTime = performance.now();
 
-        const coords = getCoordsFromEvent(e);
-        const rect = surface.getBoundingClientRect();
-        if (rect.width <= 0) return;
+        const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+        evaluateTouch(clientX, clientY);
 
-        const relativeX = (coords.clientX - rect.left) / rect.width;
-        this.screenPointerX = Math.max(0, Math.min(1, relativeX));
-        this.screenPointerActive = true;
-      };
+        if (this.screenLeft) this.pulseLeft(240);
+        if (this.screenRight) this.pulseRight(240);
 
-      const onStart = (e) => {
-        if (e.target.closest('.touch-controls') || e.target.closest('.hud-overlay') || e.target.closest('.modal-card') || e.target.closest('.hud-circle-pause-btn')) return;
-        isInteracting = true;
-        handleStartOrMove(e);
         try {
           if (e.pointerId && surface.setPointerCapture) surface.setPointerCapture(e.pointerId);
         } catch (_) {}
       };
 
       const onMove = (e) => {
-        if (isInteracting) {
-          handleStartOrMove(e);
-        }
+        if (!this.screenPointerActive) return;
+        if (e.cancelable) e.preventDefault();
+        const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+        evaluateTouch(clientX, clientY);
       };
 
       const onEnd = (e) => {
-        isInteracting = false;
+        const pressDuration = performance.now() - touchStartTime;
+        if (pressDuration < 160) {
+          if (this.screenLeft) this.pulseLeft(240);
+          if (this.screenRight) this.pulseRight(240);
+        }
         this.screenPointerActive = false;
         this.screenPointerX = null;
+        this.screenLeft = false;
+        this.screenRight = false;
         try {
           if (e.pointerId && surface.hasPointerCapture && surface.hasPointerCapture(e.pointerId)) {
             surface.releasePointerCapture(e.pointerId);
@@ -617,13 +649,13 @@
         } catch (_) {}
       };
 
-      // Pointer events
+      // Modern Pointer Events
       surface.addEventListener('pointerdown', onStart);
       surface.addEventListener('pointermove', onMove);
       surface.addEventListener('pointerup', onEnd);
       surface.addEventListener('pointercancel', onEnd);
 
-      // Touch events with passive: false to prevent browser gesture aborts
+      // Touch Events with passive: false to prevent browser gesture aborts
       surface.addEventListener('touchstart', onStart, { passive: false });
       surface.addEventListener('touchmove', onMove, { passive: false });
       surface.addEventListener('touchend', onEnd, { passive: false });
@@ -631,17 +663,21 @@
     }
 
     getHorizontalAxis(player = null) {
-      let axis = 0;
-      if (this.keys.left || this.touchLeft) axis -= 1;
-      if (this.keys.right || this.touchRight) axis += 1;
+      const now = performance.now();
+      const leftActive = this.keys.left || this.touchLeft || this.screenLeft || (now < this.tapPulseLeftUntil);
+      const rightActive = this.keys.right || this.touchRight || this.screenRight || (now < this.tapPulseRightUntil);
 
-      // Screen direct touch / drag steering (moves smoothly toward finger position)
+      let axis = 0;
+      if (leftActive) axis -= 1;
+      if (rightActive) axis += 1;
+
+      // Fine coordinate steering override if dragging near center or player
       if (axis === 0 && this.screenPointerActive && player && this.screenPointerX !== null) {
         const arenaW = player.arena ? player.arena.clientWidth : (player.arena?.parentElement ? player.arena.parentElement.clientWidth : 800);
         const targetX = this.screenPointerX * arenaW;
         const playerCenterX = player.x + (player.width / 2);
         const diff = targetX - playerCenterX;
-        if (Math.abs(diff) > 12) {
+        if (Math.abs(diff) > 8) {
           axis = diff > 0 ? 1 : -1;
         }
       }
@@ -655,8 +691,12 @@
       this.touchLeft = false;
       this.touchRight = false;
       this.touchAction = false;
+      this.screenLeft = false;
+      this.screenRight = false;
       this.screenPointerActive = false;
       this.screenPointerX = null;
+      this.tapPulseLeftUntil = 0;
+      this.tapPulseRightUntil = 0;
 
       const btnLeft = document.getElementById('btn-touch-left');
       const btnRight = document.getElementById('btn-touch-right');
@@ -1453,92 +1493,92 @@
    */
   const ENVIRONMENTS = [
     {
+      id: 'puja-aarti',
+      bgUrl: 'assets/bg_7_ganga_aarti.jpg',
+      className: 'env-blossom-garden',
+      name: 'Ganesh Puja Maha Aarti',
+      minScore: 0,
+      icon: '🪔',
+      particleMode: 'dust',
+      toastTitle: 'GANESH PUJA MAHA AARTI',
+      description: 'Devotees celebrating Ganesh Puja with glowing aarti lamps and joyful devotion'
+    },
+    {
+      id: 'kailash-abode',
+      bgUrl: 'assets/bg_kailash_peaks.jpg',
+      className: 'env-temple-courtyard',
+      name: 'Mount Kailash - Shiva & Parvati',
+      minScore: 80,
+      icon: '🏔️',
+      particleMode: 'dust',
+      toastTitle: 'MOUNT KAILASH – SHIVA & PARVATI',
+      description: 'Sacred Himalayan abode of Lord Shiva, Mata Parvati & Lord Ganesha'
+    },
+    {
+      id: 'golden-mandapa',
+      bgUrl: 'assets/bg_8_golden_mandapa.jpg',
+      className: 'env-temple-courtyard',
+      name: 'Golden Puja Mandapa',
+      minScore: 180,
+      icon: '🏛️',
+      particleMode: 'dust',
+      toastTitle: 'GOLDEN PUJA MANDAPA',
+      description: 'Devotees offering fresh modaks, ladoos and fragrant marigold garlands'
+    },
+    {
+      id: 'temple-darshan',
+      bgUrl: 'assets/bg_day_temple.jpg',
+      className: 'env-temple-courtyard',
+      name: 'Sunlit Mandir Darshan',
+      minScore: 300,
+      icon: '🛕',
+      particleMode: 'dust',
+      toastTitle: 'SUNLIT MANDIR DARSHAN',
+      description: 'Joyful temple courtyard filled with devotees worshiping Lord Ganesh'
+    },
+    {
       id: 'blossom-garden',
       bgUrl: 'assets/bg_blossom_garden.jpg',
       className: 'env-blossom-garden',
-      name: 'Parijat Spring Mandir',
-      minScore: 0,
+      name: 'Parijat Blossom Garden',
+      minScore: 440,
       icon: '🌸',
       particleMode: 'petals',
-      toastTitle: 'PARIJAT SPRING MANDIR',
-      description: "Lord Ganesha's sunny blossom garden with flowering Parijat trees"
+      toastTitle: 'PARIJAT BLOSSOM GARDEN',
+      description: "Lord Ganesha's bright blossom garden with sacred flowering Parijat trees"
     },
     {
-      id: 'temple-dawn',
-      bgUrl: 'assets/bg_temple_dawn.jpg',
-      className: 'env-temple-courtyard',
-      name: 'Morning Temple Courtyard',
-      minScore: 80,
-      icon: '🛕',
-      particleMode: 'dust',
-      toastTitle: 'MORNING TEMPLE COURTYARD',
-      description: 'Golden sunrise temple courtyard with holy kund and marigold rangoli'
-    },
-    {
-      id: 'kailash-peaks',
-      bgUrl: 'assets/bg_kailash_peaks.jpg',
-      className: 'env-temple-courtyard',
-      name: 'Mount Kailash Abode',
-      minScore: 180,
-      icon: '🏔️',
-      particleMode: 'dust',
-      toastTitle: 'MOUNT KAILASH ABODE',
-      description: 'Sacred Himalayan abode of Lord Shiva, Maa Parvati & Ganesha'
+      id: 'riverside-utsav',
+      bgUrl: 'assets/bg_evening_riverside.jpg',
+      className: 'env-lotus-lake',
+      name: 'Riverside Temple Utsav',
+      minScore: 580,
+      icon: '🌊',
+      particleMode: 'lotus',
+      toastTitle: 'RIVERSIDE TEMPLE UTSAV',
+      description: 'Devotional river ghat festival with floating water diyas and bhajan celebrations'
     },
     {
       id: 'lotus-lake',
       bgUrl: 'assets/bg_lotus_lake.jpg',
       className: 'env-lotus-lake',
       name: 'Sacred Lotus Lake',
-      minScore: 300,
+      minScore: 720,
       icon: '🪷',
       particleMode: 'dust',
       toastTitle: 'SACRED LOTUS LAKE',
-      description: 'Divine pink lotus lake where Lord Ganesh & Mushak Ji rejoice'
+      description: 'Divine sunlit lotus lake where Lord Ganesh & Mushak Ji rejoice'
     },
     {
       id: 'celestial-dawn',
       bgUrl: 'assets/bg_celestial_dawn.jpg',
       className: 'env-blossom-garden',
       name: 'Celestial Ananda Loka',
-      minScore: 440,
+      minScore: 880,
       icon: '✨',
       particleMode: 'dust',
       toastTitle: 'CELESTIAL ANANDA LOKA',
       description: 'Heavenly golden morning realm of divine modak blessings'
-    },
-    {
-      id: 'golden-mandapa',
-      bgUrl: 'assets/bg_8_golden_mandapa.jpg',
-      className: 'env-temple-courtyard',
-      name: 'Golden Mandapa',
-      minScore: 580,
-      icon: '🏛️',
-      particleMode: 'dust',
-      toastTitle: 'GOLDEN TEMPLE MANDAPA',
-      description: 'Carved golden sanctum where modaks and ladoos are offered'
-    },
-    {
-      id: 'monsoon-mandir',
-      bgUrl: 'assets/bg_5_monsoon_mandir.jpg',
-      className: 'env-lotus-lake',
-      name: 'Monsoon Mandir',
-      minScore: 720,
-      icon: '🌧️',
-      particleMode: 'dust',
-      toastTitle: 'MONSOON MANDIR',
-      description: 'Peaceful rain sanctuary with fresh greenery and dancing peacocks'
-    },
-    {
-      id: 'sacred-banyan',
-      bgUrl: 'assets/bg_10_sacred_banyan.jpg',
-      className: 'env-temple-courtyard',
-      name: 'Sacred Banyan Sanctuary',
-      minScore: 880,
-      icon: '🌳',
-      particleMode: 'dust',
-      toastTitle: 'SACRED BANYAN SANCTUARY',
-      description: 'Holy Kalpavriksha banyan shade where Ganesh Ji & Mushak rest'
     }
   ];
 
